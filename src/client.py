@@ -4,6 +4,7 @@ import cv2
 import os
 from json import JSONEncoder,JSONDecoder
 import numpy
+
 files=os.listdir("/home/lzz/caffe-master/new/handshapes/test/1/")  
 for f in files:
     im = cv2.imread("/home/lzz/caffe-master/new/handshapes/test/1/"+f,cv2.CV_LOAD_IMAGE_COLOR)
