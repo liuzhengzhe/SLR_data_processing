@@ -7,6 +7,8 @@ import numpy as np
 import sys
 import caffe
 import datetime
+import asyncore
+import asynchat
 address=("192.168.212.96",8080)
 socket=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 socket.bind(address)
