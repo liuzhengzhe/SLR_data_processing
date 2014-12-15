@@ -23,7 +23,7 @@ def hog(hand_data):
 
 
 #def construct_hog_binary_features(frames,templates,level_index,level_num,fout,f,f_length,left,right):
-def construct_hog_binary_features(frames,templates,level_index,level_num,left,right,name):
+def construct_hog_binary_features(frames,templates,level_index,level_num,left,right):
     if level_index==level_num:
         return []
     left_indices=[]
@@ -71,6 +71,7 @@ def construct_hog_binary_features2(frames,templates,level_index,level_num,left,r
     best_choice=[]
     ind=0
     inde=0
+    dic={}
     for frame in frames:
 
         if frame[RIGHT_HOG]:
@@ -78,11 +79,12 @@ def construct_hog_binary_features2(frames,templates,level_index,level_num,left,r
             hoglist=list(hog(frame[RIGHT_HOG]));
             mmm=zeros((1,4356))
             mmm[0,:]=hoglist
-            get_hogdescriptor_visual_image(normalize_histogram(hoglist),inde,"1","1")
+            #get_hogdescriptor_visual_image2(normalize_histogram(hoglist),index)
             if(right[index]==1):
-                get_hogdescriptor_visual_image(normalize_histogram(hoglist),inde,"1","1")
+                get_hogdescriptor_visual_image2(normalize_histogram(hoglist),index+25)
                 blogword=concatenate((blogword,mmm))
                 ind+=1
+                dic[ind]=index+25
         index=index+1
 #    print ind
 #    print inde
@@ -90,7 +92,7 @@ def construct_hog_binary_features2(frames,templates,level_index,level_num,left,r
         return []
     blogword=blogword[1:size(blogword),:]
     best_choice = kmedoids(blogword,1)
-#    print best_choice
+    print dic[best_choice]
 #    print >>fout,sum(x1),sum(x2)
     li=list(blogword[best_choice,:])
     return normalize_histogram(list(blogword[best_choice,:]))

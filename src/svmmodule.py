@@ -5,7 +5,7 @@ import math
 import numpy
 import struct
 from hmm.continuous.GMHMM import GMHMM
-from cluster import KMeansClustering
+#from cluster import KMeansClustering
 import time
 import random
 #import matplotlib.pyplot as plt1  

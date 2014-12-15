@@ -18,17 +18,17 @@ def get_bin_for_vec(vec_2d,bin_num):
 
 def hod(features,bin_num=8,level_num=4):
     his=[]
-    his+=hod_of_a_joint_origin(features,LHX,LHY,LHZ,bin_num,level_num)
-    his+=hod_of_a_joint_origin(features,LSX,LSY,LSZ,bin_num,level_num)
-    his+=hod_of_a_joint_origin(features,LEX,LEY,LEZ,bin_num,level_num)
-    right=hod_of_a_joint(features,RHX,RHY,RHZ,bin_num,level_num)
+    his+=hod_of_a_joint_origin(features,0,1,2,bin_num,level_num)
+    his+=hod_of_a_joint_origin(features,3,4,5,bin_num,level_num)
+    his+=hod_of_a_joint_origin(features,6,7,8,bin_num,level_num)
+    right=hod_of_a_joint(features,21,22,23,bin_num,level_num)
     his+=list(right)[0]
     deter_right=right[1]
     
-    his+=hod_of_a_joint_origin(features,RSX,RSY,RSZ,bin_num,level_num)
-    his+=hod_of_a_joint_origin(features,REX,REY,REZ,bin_num,level_num)
-    his+=hod_of_a_joint_origin(features,LWX,LWY,LWZ,bin_num,level_num)
-    his+=hod_of_a_joint_origin(features,RWX,RWY,RWZ,bin_num,level_num)
+    his+=hod_of_a_joint_origin(features,9,10,11,bin_num,level_num)
+    his+=hod_of_a_joint_origin(features,12,13,14,bin_num,level_num)
+    his+=hod_of_a_joint_origin(features,15,16,17,bin_num,level_num)
+    his+=hod_of_a_joint_origin(features,18,19,20,bin_num,level_num)
     deter_left=0
 #     print len(his),his
     return his,deter_left,deter_right
