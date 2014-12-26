@@ -5,26 +5,6 @@ import csv
 
 #g_slider_position = 0
 
-cap1 = cv2.VideoCapture("H:\Aaron\1-250\HKG_001_a_0001 Aaron 33\HKG_001_a_0001 Aaron 33_d.AVI")  
-cap2 = cv2.VideoCapture("H:\Aaron\1-250\HKG_001_a_0001 Aaron 22\HKG_001_a_0001 Aaron 22_d.AVI")
-merged_frame = np.zeros((500,1190,3), np.uint8)
-cv2.namedWindow("Video",cv2.CV_WINDOW_AUTOSIZE)
-with open('H:\Aaron\1-250\HKG_001_a_0001 Aaron 33\label.csv','rb') as Label1:
-    reader = csv.reader(Label1)
-    labelArr1 = []
-    for row in reader : labelArr1.append(row)
-with open('H:\Aaron\1-250\HKG_001_a_0001 Aaron 22\label.csv','rb') as Label2:
-    reader = csv.reader(Label2)
-    labelArr2 = []
-    for row in reader : labelArr2.append(row)
-with open('H:\Aaron\1-250\HKG_001_a_0001 Aaron 33\skeleton.csv','rb') as Skeleton1:
-    reader = csv.reader(Skeleton1)
-    skeletonArr1 = []
-    for row in reader : skeletonArr1.append(row)
-with open('H:\Aaron\1-250\HKG_001_a_0001 Aaron 22\skeleton.csv','rb') as Skeleton2:
-    reader = csv.reader(Skeleton2)
-    skeletonArr2 = []
-    for row in reader : skeletonArr2.append(row)
     
 def nothing(x):
     pass
@@ -42,8 +22,9 @@ def showMainImage1(current_frame):
             box = cv2.cv.BoxPoints(cnt)
             box = np.int0(box)
             cv2.drawContours(frame1,[box],0,(0,0,255),2)
-            cv2.circle(frame1,(int(label[2]),int(label[3])),7,(0,0,255),-1)
-            cv2.circle(frame1,(int(prv_label[2]),int(prv_label[3])),7,(100,100,250),-1)
+            print label[2]
+            cv2.circle(frame1,(int(float(label[2])),int(float(label[3]))),7,(0,0,255),-1)
+            cv2.circle(frame1,(int(float(prv_label[2])),int(float(prv_label[3]))),7,(100,100,250),-1)
         
         if label[1] == "Both":
             cnt1 = (float(label[2]),float(label[3])),(float(label[4]),float(label[5])),float(label[6])
@@ -260,27 +241,27 @@ def showHogImage(current_frame,i):
     if i==1: merged_frame[:244, 678:922]= hogImage
     else: merged_frame[254:498, 678:922]= hogImage
 
-def showKeyImage(i):
+'''def showKeyImage(i):
     if i== 1: dir = 'D:/CUHK_Project/HandDetector/sample1/visualization/40.jpg'
     else: dir = 'D:/CUHK_Project/HandDetector/sample2/visualization/40.jpg'
     keyImage = cv2.imread(dir)
     keyImage = cv2.resize(keyImage,(240,240))
     keyImage = cv2.copyMakeBorder(keyImage,2,2,2,2,cv2.BORDER_CONSTANT,value=(0,0,255))
     if i==1: merged_frame[:244, 932:1176]= keyImage
-    else: merged_frame[254:498, 932:1176]= keyImage
+    else: merged_frame[254:498, 932:1176]= keyImage'''
 
 def silder1_display(current_frame):
     current_frame = cv2.getTrackbarPos("Silder1", "Video")
     showBWImage(current_frame,1)
     showHogImage(current_frame,1)
-    showKeyImage(1)
+    #showKeyImage(1)
     showMainImage1(current_frame) 
 
 def silder2_display(current_frame):
     current_frame = cv2.getTrackbarPos("Silder2", "Video")
     showBWImage(current_frame,2)
     showHogImage(current_frame,2)
-    showKeyImage(2)
+    #showKeyImage(2)
     showMainImage2(current_frame)
     
      
@@ -289,37 +270,58 @@ def silder2_display(current_frame):
 #box = cv2.cv.BoxPoints(cnt)
 #box = np.int0(box)
 #cv2.namedWindow("image")
-
+if __name__ == '__main__':
+    cap1 = cv2.VideoCapture("/media/lzz/Data1/Aaron/1-250/HKG_001_a_0001 Aaron 22/HKG_001_a_0001 Aaron 22_d.avi")  
+    cap2 = cv2.VideoCapture("/media/lzz/Data1/Aaron/1-250/HKG_001_a_0001 Aaron 22/HKG_001_a_0001 Aaron 22_d.avi")
+    merged_frame = np.zeros((500,1190,3), np.uint8)
+    cv2.namedWindow("Video",cv2.CV_WINDOW_AUTOSIZE)
+    with open('/media/lzz/Data1/Aaron/1-250/HKG_001_a_0001 Aaron 22/label.csv','rb') as Label1:
+        reader = csv.reader(Label1)
+        labelArr1 = []
+        for row in reader : labelArr1.append(row)
+    with open('/media/lzz/Data1/Aaron/1-250/HKG_001_a_0001 Aaron 22/label.csv','rb') as Label2:
+        reader = csv.reader(Label2)
+        labelArr2 = []
+        for row in reader : labelArr2.append(row)
+    with open('/media/lzz/Data1/Aaron/1-250/HKG_001_a_0001 Aaron 22/HKG_001_a_0001 Aaron 22.csv','rb') as Skeleton1:
+        reader = csv.reader(Skeleton1)
+        skeletonArr1 = []
+        for row in reader : skeletonArr1.append(row)
+    with open('/media/lzz/Data1/Aaron/1-250/HKG_001_a_0001 Aaron 22/HKG_001_a_0001 Aaron 22.csv','rb') as Skeleton2:
+        reader = csv.reader(Skeleton2)
+        skeletonArr2 = []
+        for row in reader : skeletonArr2.append(row)
 #no_of_frames = int(cv2.GetCaptureProperty(cap,7))
-no_of_frames1 = int(cap1.get(7))
-no_of_frames2 = int(cap2.get(7))
-#switch = '0 : CLOSE \n1 : OPEN'
-if no_of_frames1 != 0 and no_of_frames2!=0:
-    cv2.createTrackbar("Silder1", "Video",0, no_of_frames1, silder1_display)
-    cv2.createTrackbar("Silder2", "Video",0, no_of_frames2, silder2_display)
-    #switch = 'show skeleton'
-    #cv2.createTrackbar('switch',"Video",0,1,nothing)
-    #cv2.createTrackbar(switch, 'Video',0,1,openImage)
+    no_of_frames1 = int(cap1.get(7))
+    no_of_frames2 = int(cap2.get(7))
+    #switch = '0 : CLOSE \n1 : OPEN'
+    if no_of_frames1 != 0 and no_of_frames2!=0:
+        cv2.createTrackbar("Silder1", "Video",0, no_of_frames1, silder1_display)
+        cv2.createTrackbar("Silder2", "Video",0, no_of_frames2, silder2_display)
+        #switch = 'show skeleton'
+        #cv2.createTrackbar('switch',"Video",0,1,nothing)
+        #cv2.createTrackbar(switch, 'Video',0,1,openImage)
+        
+    while cap1.isOpened() and cap2.isOpened() :
+    #while 1:
+        k = cv2.waitKey(0) & 0xFF
+        current_frame1 = cv2.getTrackbarPos("Silder1", "Video")
+        current_frame2 = cv2.getTrackbarPos("Silder2", "Video")
+        if k == 49:
+            showSkeleton(current_frame1, current_frame2,1)
+        if k == 50:
+            showSkeleton(current_frame1, current_frame2,2) 
+        if k == 51:
+            showSkeleton(current_frame1, current_frame2,3)
+        if k == 52:
+            showSkeleton(current_frame1, current_frame2,4)
+        if k == 53:
+            showSkeleton(current_frame1, current_frame2,5)
+        if k == 27:
+            break
+    cap1.release()    
+    cap2.release()
+    cv2.destroyAllWindows()
+        
     
-while cap1.isOpened() and cap2.isOpened() :
-    k = cv2.waitKey(0) & 0xFF
-    current_frame1 = cv2.getTrackbarPos("Silder1", "Video")
-    current_frame2 = cv2.getTrackbarPos("Silder2", "Video")
-    if k == 49:
-        showSkeleton(current_frame1, current_frame2,1)
-    if k == 50:
-        showSkeleton(current_frame1, current_frame2,2) 
-    if k == 51:
-        showSkeleton(current_frame1, current_frame2,3)
-    if k == 52:
-        showSkeleton(current_frame1, current_frame2,4)
-    if k == 53:
-        showSkeleton(current_frame1, current_frame2,5)
-    if k == 27:
-        break
-cap1.release()    
-cap2.release()
-cv2.destroyAllWindows()
-    
-
-    
+        

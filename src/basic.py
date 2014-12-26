@@ -55,6 +55,7 @@ def split_data(labels,data,classes_in_test=range(1,51)):
     train_data=[]
     test_labels=[]
     test_data=[]
+    initial_index_test=[]
     #for i in range(0, min(len(labels),len(data))-1):
     for i in range(0, len(labels)):
         if not (labels[i] in classes_in_test):
@@ -63,11 +64,12 @@ def split_data(labels,data,classes_in_test=range(1,51)):
             test_labels.append(labels[i])
 #             test_data.append(convert_features(data[i]))
             test_data.append(data[i])
+            initial_index_test.append(i)
         else:
             train_labels.append(labels[i])
 #             train_data.append(convert_features(data[i]))
             train_data.append(data[i])
-    return train_labels,train_data,test_labels,test_data
+    return train_labels,train_data,test_labels,test_data,initial_index_test
 
 
 def normalize_histogram(bins):

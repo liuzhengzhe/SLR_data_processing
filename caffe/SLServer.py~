@@ -54,7 +54,7 @@ def recv_timeout(the_socket,timeout=0.02):
 if __name__ == "__main__":
     # List to keep track of socket descriptors
     CONNECTION_LIST = []
-    PORT = 8080
+    PORT = 8000
     RECV_BUFFER = 4096
     server_socket = socket.socket(
         socket.AF_INET, socket.SOCK_STREAM)
@@ -101,7 +101,7 @@ if __name__ == "__main__":
             else:
                 # Data recieved from client, process it
                 #try:
-                    #In Win9dows, sometimes when a TCP program closes abruptly,
+                    #In Windows, sometimes when a TCP program closes abruptly,
                     # a "Connection reset by peer" exception will be thrown
                 #print "data received"
                 #filename = open('D:/caffe/caffe-windows-extract-feature/caffe-windows/bin/tst.jpg', 'wb')
@@ -111,13 +111,14 @@ if __name__ == "__main__":
                     t+=1
                     #filename.write(r)
 #                     sendData(sock,json.dumps({"result":"received"}))
-                    #filename.close(
-                    print "="*20
-                    print len(r),"bytes received"
-                    s = r.split("SPLIT")
-                    print len(s)," images"
-                    bytes0=bytearray(s[0])
-                    image = Image.open(io.BytesIO(bytes0))
+                    #filename.close()
+                    bytes=bytearray(r)
+                    print len(bytes.split("SPLIT"))
+                    print type(bytes)
+                    bytes=bytes.split("SPLIT")[0]
+                    #print len(bytes)
+		    #bytes = bytes[-2]
+                    image = Image.open(io.BytesIO(bytes))
                     #img=imread(image)
                     img=array(image)
                     

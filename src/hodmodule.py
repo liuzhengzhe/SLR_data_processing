@@ -23,15 +23,16 @@ def hod(features,bin_num=8,level_num=4):
     his+=hod_of_a_joint_origin(features,6,7,8,bin_num,level_num)
     right=hod_of_a_joint(features,21,22,23,bin_num,level_num)
     his+=list(right)[0]
-    deter_right=right[1]
+    right_v=right[1]
+    right_h=right[2]
     
     his+=hod_of_a_joint_origin(features,9,10,11,bin_num,level_num)
     his+=hod_of_a_joint_origin(features,12,13,14,bin_num,level_num)
     his+=hod_of_a_joint_origin(features,15,16,17,bin_num,level_num)
     his+=hod_of_a_joint_origin(features,18,19,20,bin_num,level_num)
-    deter_left=0
+
 #     print len(his),his
-    return his,deter_left,deter_right
+    return his,right_v,right_h
 
 def hod_of_a_joint_origin(features,x_index,y_index,z_index,bin_num,level_num):  
     his=get_hod_for_a_node_of_pyramid_origin(features,x_index,y_index,z_index,bin_num,1,level_num)              
@@ -40,8 +41,9 @@ def hod_of_a_joint_origin(features,x_index,y_index,z_index,bin_num,level_num):
 def hod_of_a_joint(features,x_index,y_index,z_index,bin_num,level_num):  
     ret=get_hod_for_a_node_of_pyramid(features,x_index,y_index,z_index,bin_num,1,level_num) 
     his=ret[0]
-    determine=ret[1]             
-    return his,determine
+    right_v=ret[1]             
+    height=ret[2]
+    return his,right_v,height
 
 
 def get_hod_for_a_node_of_pyramid_origin(features,x_index,y_index,z_index,bin_num,level_index,level_num):
@@ -88,7 +90,8 @@ def get_hod_for_a_node_of_pyramid(features,x_index,y_index,z_index,bin_num,level
     bin_yz=[0]*bin_num
     flag=0
     y0=py
-    determine=[0]*len(features)
+    right_v=[0]*len(features)
+    right_h=[0]*len(features)
     for i in range(1,len(features)):
         x=features[i][x_index]
         y=features[i][y_index]
@@ -101,7 +104,9 @@ def get_hod_for_a_node_of_pyramid(features,x_index,y_index,z_index,bin_num,level
         bin_yz[get_bin_for_vec(v_yz,bin_num)]+=length(v_yz)
         
         len_of_v=math.sqrt((x-px)**2+(y-py)**2+(z-pz)**2);
-        length_list.append(len_of_v)
+        right_v[i]=len_of_v
+        right_h[i]=y
+        '''length_list.append(len_of_v)
         if(len_of_v>0.1):
             len_of_v
         if(flag==0 and len_of_v<0.1):
@@ -114,7 +119,7 @@ def get_hod_for_a_node_of_pyramid(features,x_index,y_index,z_index,bin_num,level
         if(flag==3):
             flag=0
             for j in range(3):
-                determine[i-j]=1
+                determine[i-j]=1'''
         '''if(flag==0 and len_of_v<0.1 and y-y0>0.2):
             flag=1;
         elif(flag>0 and len_of_v<0.1 and y-y0>0.2):
@@ -151,7 +156,7 @@ def get_hod_for_a_node_of_pyramid(features,x_index,y_index,z_index,bin_num,level
     bin_xy=normalize_histogram(bin_xy)
     bin_xz=normalize_histogram(bin_xz)
     bin_yz=normalize_histogram(bin_yz)
-    return bin_xy+bin_xz+bin_yz+left_hod+right_hod,determine
+    return bin_xy+bin_xz+bin_yz+left_hod+right_hod,right_v,right_h
 '''fix the threshold to determine key handshape
 def get_hod_for_a_node_of_pyramid(features,x_index,y_index,z_index,bin_num,level_index,level_num):
     if level_index==level_num:

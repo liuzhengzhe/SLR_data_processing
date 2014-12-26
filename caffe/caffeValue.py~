@@ -18,20 +18,14 @@ def caffeValue(rootpath):
     net.set_raw_scale('data', 1)  # the reference model operates on images in [0,255] range instead of [0,1]
     net.set_channel_swap('data', (2,1,0))  # the reference model has channels in BGR order instead of RGB]
     #m=[caffe.io.load_image(imgpath)]
-    imgs=[]
     for f in files:
         im = cv2.imread("/home/lzz/caffe-master/new/handshapes/train/13/"+f,cv2.CV_LOAD_IMAGE_COLOR)
         im=im/255.0
-        imgs.append(im)
-    print len(imgs)
-    print net.predict(imgs,False)
-        #print im
+        net.predict([im])
+        print im
         #cv2.imshow("1",im)
         #cv2.waitKey()
-    print  len(net.blobs['prob'].data)
-    for i in range(100):
-        
-        feat = net.blobs['ip1'].data[i].flatten().tolist()
+        feat = net.blobs['data'].data[0].flatten().tolist()
         ind=feat.index(max(feat))
         print feat
         print str(ind)

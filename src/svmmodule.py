@@ -15,7 +15,7 @@ from constant_numbers import *
 
 
 
-def get_classes_with_at_least_num_of_data(labels,num=3):
+def get_classes_with_at_least_num_of_data(labels,num=2):
     ret=set()
     count={}
     for label in labels:
@@ -39,13 +39,15 @@ def train_svm_model(labels,data,para='-t 0 -c 1000 -b 1'):
     return m
 
 def test_svm_model(m,labels,data):
+    print labels
+    print data
     p_labels, p_acc, p_vals = svm_predict(labels, data, m)
     return p_labels, p_acc, p_vals
 
 
 
-def test_svm(labels,data,bin_num=4,level_num=2,level_num_hog=3,para='-s 0 -c 2048 -t 2 -g 0.5'):
-    train_labels,train_data,test_labels,test_data=split_data(labels,data,get_classes_with_at_least_num_of_data(labels,num=3))
+def test_svm(labels,data,variance,bin_num=4,level_num=2,level_num_hog=3,para='-s 0 -c 2048 -t 2 -g 0.5'):
+    train_labels,train_data,test_labels,test_data,initial_index_test=split_data(labels,data,get_classes_with_at_least_num_of_data(labels,num=3))
     '''Sparse Representation
     f_sr_l=open("F:/study/save/generating/sparse/sr_l.txt","w")
     f_sr_d=open("F:/study/save/generating/sparse/sr_d.txt","w")
@@ -93,13 +95,28 @@ def test_svm(labels,data,bin_num=4,level_num=2,level_num_hog=3,para='-s 0 -c 204
             test_data[int(i/7)].append(test_data2[i])
             index+=1
 '''
-          
+    print train_labels,test_labels
     svm_m1=train_svm_model(train_labels,train_data)
     svm_res1=test_svm_model(svm_m1,test_labels,test_data)
     #plot_a_graph();
     
     pred_labels=svm_res1[0];
-    pred_three=[];
+    varianceSum1=0
+    varianceSum2=0
+    same=0
+    different=0
+    for i in range(len(pred_labels)):
+        if(pred_labels[i]==test_labels[i]):
+            varianceSum1+=variance[initial_index_test[i]]
+            same+=1
+        else:
+            varianceSum2+=variance[initial_index_test[i]]
+            different+=1
+    print variance
+    print initial_index_test
+    print float(varianceSum1)/float(same),float(varianceSum2)/float(different)
+            
+    '''pred_three=[];
     right=0;
     rightonly=0;
     list1=[];
@@ -115,7 +132,7 @@ def test_svm(labels,data,bin_num=4,level_num=2,level_num_hog=3,para='-s 0 -c 204
         if test_labels[i]==first:
             rightonly=rightonly+1;
             list1.append(test_labels[i]);
-            list2.append(first);
+            list2.append(first);'''
 #        else:
 #            print test_labels[i],first
             #print classNo2Label[test_labels[i]],classNo2Label[first]
