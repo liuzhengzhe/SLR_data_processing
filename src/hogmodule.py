@@ -59,6 +59,30 @@ def construct_hog_binary_features(frames,templates,level_index,level_num,left,ri
     li=list(blogword[best_choice,:])
     return normalize_histogram(list(blogword[best_choice,:]))
 
+def findKey(frames):
+    blogword=zeros((1,len(frames[0])))           
+    ind=0
+    for frame in frames:
+            mmm=zeros((1,len(frames[0])))
+            mmm[0,:]=frame
+                #get_hogdescriptor_visual_image(normalize_histogram(hoglist),inde,"1","1")
+            blogword=concatenate((blogword,mmm))
+            ind+=1
+
+    #print ind
+    #print inde
+    if (ind==0):
+        return []
+    blogword=blogword[1:size(blogword),:]
+    best_choice = kmedoids(blogword,1)
+#    print best_choice
+#    print >>fout,sum(x1),sum(x2)
+    li=list(blogword[best_choice,:])
+    return normalize_histogram(list(blogword[best_choice,:]))
+
+
+
+
 def construct_hog_binary_features2(frames,templates,level_index,level_num,left,right,name):
     if level_index==level_num:
         return []

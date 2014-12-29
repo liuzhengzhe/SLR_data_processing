@@ -29,13 +29,16 @@ Aaron 1-250 handshape ip1,normalized,pooling_type=0 or 1 or 2,keyNo=1
 Accuracy = 25.1029% (61/243) (classification)
 
 Aaron 1-250 hod
-Accuracy = 63.786% (155/243) (classification)
+Accuracy = 64.1667% (154/240) (classification)
 
 Aaron 1-250 hod+handshape ip2,normalized,pooling_type=1,keyNo=5
 Accuracy = 27.1605% (66/243) (classification)
 
 Aaron 1-250 hod+one key handshape
 Accuracy = 74.477% (178/239) (classification)
+
+Aaron 1-250 hod+one key handshape(skimage)
+Accuracy = 69.5833% (167/240) (classification)
 
 Aaron 1-250 hod+template
 Accuracy = 74.0586% (177/239) (classification)

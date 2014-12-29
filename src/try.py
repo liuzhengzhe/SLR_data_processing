@@ -46,4 +46,31 @@ path="/media/lzz/Data1/Aaron/1-250/HKG_005_d_0009 Aaron 2081/handshape"
 os.chdir(path)
 print os.path.isfile(path+"/handshape/73.jpg")
 os.rename("73.jpg","73*.jpg")'''
-print float(5)/float(2)
+import matplotlib.pyplot as plt
+import cv2
+from skimage.feature import hog
+from skimage import data, color, exposure
+import skimage
+#path="/media/lzz/Data1/Aaron/1-250/HKG_001_a_0001 Aaron 11"
+path="/home/lzz/caffe-master/new/handshapes/train/13/2.jpg"
+image=cv2.imread(path)
+image = color.rgb2gray(image)
+
+fd, hog_image = hog(image, orientations=9, pixels_per_cell=(16,16),cells_per_block=(2, 2), visualise=True)
+print len(fd)
+for i in range(len(fd)):
+    print fd[i]
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 4))
+
+ax1.axis('off')
+ax1.imshow(image)
+ax1.set_title('Input image')
+
+# Rescale histogram for better display
+hog_image_rescaled = exposure.rescale_intensity(hog_image, in_range=(0, 0.002))
+
+ax2.axis('off')
+ax2.imshow(hog_image_rescaled)
+ax2.set_title('Histogram of Oriented Gradients')
+plt.show()

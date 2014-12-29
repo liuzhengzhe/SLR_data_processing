@@ -271,23 +271,24 @@ def silder2_display(current_frame):
 #box = np.int0(box)
 #cv2.namedWindow("image")
 if __name__ == '__main__':
-    cap1 = cv2.VideoCapture("/media/lzz/Data1/Aaron/1-250/HKG_001_a_0001 Aaron 22/HKG_001_a_0001 Aaron 22_d.avi")  
-    cap2 = cv2.VideoCapture("/media/lzz/Data1/Aaron/1-250/HKG_001_a_0001 Aaron 22/HKG_001_a_0001 Aaron 22_d.avi")
+    name="HKG_001_a_0016 Aaron 273"
+    cap1 = cv2.VideoCapture("/media/lzz/Data1/Aaron/"+name+"/"+name+"_d.avi")  
+    cap2 = cv2.VideoCapture("/media/lzz/Data1/Aaron/"+name+"/"+name+"_d.avi")  
     merged_frame = np.zeros((500,1190,3), np.uint8)
     cv2.namedWindow("Video",cv2.CV_WINDOW_AUTOSIZE)
-    with open('/media/lzz/Data1/Aaron/1-250/HKG_001_a_0001 Aaron 22/label.csv','rb') as Label1:
+    with open('/media/lzz/Data1/Aaron/1-250/'+name+'/label.csv','rb') as Label1:
         reader = csv.reader(Label1)
         labelArr1 = []
         for row in reader : labelArr1.append(row)
-    with open('/media/lzz/Data1/Aaron/1-250/HKG_001_a_0001 Aaron 22/label.csv','rb') as Label2:
+    with open('/media/lzz/Data1/Aaron/1-250/'+name+'/label.csv','rb') as Label2:
         reader = csv.reader(Label2)
         labelArr2 = []
         for row in reader : labelArr2.append(row)
-    with open('/media/lzz/Data1/Aaron/1-250/HKG_001_a_0001 Aaron 22/HKG_001_a_0001 Aaron 22.csv','rb') as Skeleton1:
+    with open('/media/lzz/Data1/Aaron/1-250/'+name+'/'+name+'.csv','rb') as Skeleton1:
         reader = csv.reader(Skeleton1)
         skeletonArr1 = []
         for row in reader : skeletonArr1.append(row)
-    with open('/media/lzz/Data1/Aaron/1-250/HKG_001_a_0001 Aaron 22/HKG_001_a_0001 Aaron 22.csv','rb') as Skeleton2:
+    with open('/media/lzz/Data1/Aaron/1-250/'+name+'/'+name+'.csv','rb') as Skeleton2:
         reader = csv.reader(Skeleton2)
         skeletonArr2 = []
         for row in reader : skeletonArr2.append(row)
