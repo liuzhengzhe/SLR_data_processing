@@ -33,19 +33,6 @@ import skimage
 
 
 
-
-
-
-
-def list_file(path,filelist):
-    files = os.listdir(path)
-    for file in files:
-        if(os.path.isdir(path+"/"+file)==1 and file[0:4]=="HKG_"):
-            filelist.append(path+file)
-        elif(os.path.isdir(path+"/"+file)==1 and file[0:4]!="HKG_"):
-            list_file(path+"/"+file,filelist)
-    return filelist
-
                 
 class caffeDL():
     def __init__(self):
@@ -58,12 +45,396 @@ class caffeDL():
         self.net.set_raw_scale('data', 1)  # the reference model operates on images in [0,255] range instead of [0,1]
         self.net.set_channel_swap('data', (2,1,0))
 
+class SignWord():
+    def __init__(self,path):
+        loc=path.rfind("/")
+        name=path[loc:]
+        self.sampleName=name
+        self.wordName=self.sampleName[1:self.sampleName.find(" ")]
+        
+        self.displacement=[]
+        self.handshape=[]
+        self.hogFeature=[]
+        
+        self.keyNo=10
+        self.path=path
+        self.pred=''
+        
+        self.label=0
+        self.combinedFeature=[]
+        
+        
+        self.loadDisplacement()
+        self.getVelocity()
+        self.findTopHandshape()
+        ''''self.getHogFeature()'''
+        print self.wordName
+        
+        
+        
+        
+        
+    def getVelocity(self):
+        Label1=open(self.path+"/"+"handshape/velocity"+'.csv','rb')
+        vreader = csv.reader(Label1)
+        self.vList= []
+        self.hList=[]
+        self.indexList=[]
+        self.value=[]
+        for rows in vreader:
+            if(os.path.isfile(self.path+"/handshape/"+rows[0]+".jpg") or os.path.isfile(self.path+"/handshape/"+rows[0]+"*.jpg") ): 
+                self.indexList.append(rows[0])
+                self.vList.append(rows[1])
+                self.hList.append(rows[2])
+                self.value.append(0)
+        for i in range(len(self.indexList)):
+            self.value[i]=float(self.hList[i])-10*float(self.vList[i])-0.02*abs(i-len(self.indexList)/2)
+
+        if(len(self.value)<self.keyNo):
+            self.keyNo=len(self.value)
+
+        
+    def loadDisplacement(self):
+        Label1=open(self.path+"/"+'feature.csv','rb')
+        reader = csv.reader(Label1)
+        for row in reader:
+            for x in range (len(row)):
+                self.displacement.append(float(row[x]))
+        
+    def findTopHandshape(self):
+        
+        self.top=[]
+        self.topIndex=[]
+        for i in range(self.keyNo):
+            self.top.append(self.value[i])
+            self.topIndex.append(self.indexList[i])
+        #top5Index=[indexList[0],indexList[1],indexList[2],indexList[3],indexList[4]]
+        for i in range(self.keyNo,len(self.indexList)):
+            if(self.value[i]>min(self.top)):
+                ind=self.top.index(min(self.top))
+                self.top[ind]=self.value[i]
+                self.topIndex[ind]=self.indexList[i]
+        #print top5Index
+        
+        os.chdir(self.path+"/handshape/")
+        for i in range(len(self.indexList)):
+            if(os.path.isfile(self.path+"/handshape/"+self.indexList[i]+"*.jpg")):
+                os.rename(self.indexList[i]+"*.jpg",self.indexList[i]+".jpg")            
+        for i in range(len(self.top)):
+            os.rename(str(self.topIndex[i])+".jpg",str(self.topIndex[i])+"*.jpg")
+        return self.top,self.topIndex
 
 
 
 
+        
+        
+    def getHogFeature(self):
+        files=os.listdir(self.path+"/handshape/")
+        hogSet=[]
+        for file in files:
+            if file[-3:]!="jpg":
+                continue
+            
+            img=cv2.imread(self.path+"/handshape/"+file)
+            sp=img.shape
+            img2=cv2.copyMakeBorder(img, 0,0, int(abs(sp[0]-sp[1])/2),int(abs(sp[0]-sp[1])/2), cv2.BORDER_CONSTANT, value=(0, 0, 0, 0))
+            img3=cv2.resize(img2,(128,128))
+            image=img3/255.0
+            #image = color.rgb2gray(skimage.data.astronaut())
+            image = color.rgb2gray(image)
+            
+            fd, hog_image = hog(image, orientations=9, pixels_per_cell=(16,16),cells_per_block=(2, 2), visualise=True)
+            hogSet.append(fd)
 
+        self.hogFeature=hogmodule.findKey(hogSet)
+
+
+    def idvdCaffeFeature(self,img_sum,featureTotal,featureTotal2):
+
+
+        feature=[]
+        feature2=[]
+        
+        for i in range(self.keyNo):
+            # print img_sum,i
+            feat = featureTotal[img_sum+i]
+            feat2 = featureTotal2[img_sum+i]
+            #print feat.index(max(feat))
+            feature.append(feat)
+            feature2.append(feat2)
+        #print feature
+
+        self.handshape=self.pooling(feature,1)
+        
+        self.getVariance(feature2)
+        
+    
+    def pooling(self,feature,types):
+        handshape=[]
+        if(types==0):
+            #max pooling
+            for i in range(len(feature[0])):
+                maxvalue=feature[0][i]
+                for j in range(len(feature)):
+                    if(feature[j][i]>maxvalue):
+                        maxvalue=feature[j][i]
+                handshape.append(maxvalue)
+            return handshape
+        if(types==1):
+            for i in range(len(feature[0])):
+                sum0=0
+                for j in range(len(feature)):
+                    sum0=sum0+feature[j][i]
+                ave=sum0/len(feature)
+                handshape.append(ave)
+            return handshape
+        if(types==2):
+            for i in range(len(feature[0])):
+                seq=[]
+                for j in range(len(feature)):
+                    seq.append(feature[j][i])
+                seq1=sorted(seq)
+                midValue=seq1[len(seq1) // 2]
+                handshape.append(midValue)
+            return handshape
+        
+    
+    
+    
+    
+    def getVariance(self,feature):
+        self.hand_index_list=[]
+        for x in range(len(feature)):
+            hand_index=feature[x].index(max(feature[x]))
+            self.hand_index_list.append(hand_index)
+        #hand_result.write(str(l)+" "+index2name[l]+" "+str(hand_index_list)+"\n")
+        hand_exist=[]
+        #print hand_index_list
+        self.variance=0
+        for x in range(self.keyNo):
+
+            if((self.hand_index_list[x] in hand_exist)==0):
+                hand_exist.append(self.hand_index_list[x])
+                self.variance+=1
+
+    
+    def combineFeature(self):
+        self.combinedFeature=self.displacement+normalize_histogram(self.handshape)+normalize_histogram(self.hogFeature)
+        
+        
+        
+
+
+        
+        
+          
 class Classifier():
+    def __init__(self):
+        self.batch_size=80
+        self.namepool={}
+        self.index2name={}
+        self.label=[]
+        self.data=[]
+        self.displacement=[]
+        self.handshape=[]
+        self.hogKey=[]
+        self.batch=[]
+        self.filelist=[]
+        self.dic={}
+        #data_ind=-1     
+        
+    def listFile(self,path):
+        files = os.listdir(path)
+        for file in files:
+            if(os.path.isdir(path+"/"+file)==1 and file[0:4]=="HKG_"):
+                flag=classifier.testSignWord(path+"/"+file)
+                if(flag==0):
+                    continue
+                self.filelist.append(path+file)
+            elif(os.path.isdir(path+"/"+file)==1 and file[0:4]!="HKG_"):
+                self.listFile(path+"/"+file)
+        return self.filelist
+    
+    def buildDic(self,path):
+        signWord=SignWord(path)
+        self.dic[path]=signWord
+            
+    def imageProcssing(self):
+        batch_index=-1
+        imgNo=0
+        for path in self.filelist:
+            for i in range(self.dic[path].keyNo):
+                img=cv2.imread(path+"/handshape/"+str(self.dic[path].topIndex[i])+"*.jpg")
+                sp=img.shape
+                img2=cv2.copyMakeBorder(img, 0,0, int(abs(sp[0]-sp[1])/2),int(abs(sp[0]-sp[1])/2), cv2.BORDER_CONSTANT, value=(0, 0, 0, 0))
+                img3=cv2.resize(img2,(128,128))
+                img3=img3/255.0
+                #imgs.append(img3)
+                if(imgNo%self.batch_size==0):
+                    self.batch.append([])
+                    batch_index+=1
+                imgNo+=1
+                self.batch[batch_index].append(img3)  
+                    
+                    
+    def constructLabelData(self):
+        wordNo=-1
+        for path in self.filelist:
+            self.dic[path]
+            loc=path.rfind("/")
+            name=path[loc:]
+            word_name=name[0:name.find(" ")]
+            if not self.namepool.has_key(word_name):
+                word=wordNo+1
+                wordNo+=1
+                self.namepool[word_name]=word
+                self.index2name[path]=name
+            else:
+                word=self.namepool[word_name]
+                self.index2name[path]=name
+            self.dic[path].label=word
+            self.dic[path].combineFeature()
+            #self.label.append(word)           
+            #self.displacement.append(self.dic[path].combinedFeature)
+
+        
+    
+    def getCaffeFeature(self,net):
+        self.featureTotal=[]
+        self.featureTotal2=[]
+        for b in range(len(self.batch)):
+            net.predict(self.batch[b],False)
+            print "-----------------------------------------------"
+            for s in range(len(self.batch[b])):
+                feat = net.blobs['ip1'].data[s].flatten().tolist()
+                self.featureTotal.append(feat)
+                feat2= net.blobs['prob'].data[s].flatten().tolist()
+                self.featureTotal2.append(feat2)
+
+    def separateCaffeFeature(self):
+        img_sum=0
+        for path in self.filelist:
+            self.dic[path].idvdCaffeFeature(img_sum,self.featureTotal,self.featureTotal2)
+            img_sum+=self.dic[path].keyNo
+            
+    def testSignWord(self,path):
+        files=os.listdir(path+"/handshape/")
+        if(len(files)==1):
+            return 0
+        else:
+            return 1
+    def split_data(self,classes_in_test):
+        trainSet=set()
+        testSet=set()
+        testLabelSet=set()
+
+        for path in self.filelist:
+            if self.dic[path].label  in classes_in_test:
+                if ((self.dic[path].label in testLabelSet)==0):
+                    testSet.add(path)
+                    testLabelSet.add(self.dic[path].label)
+                else:
+                    trainSet.add(path)
+        return trainSet,testSet
+
+    def get_classes_with_at_least_num_of_data(self,num):
+            ret=set()
+            count={}
+            self.label2Name={}
+            for path in self.filelist:
+                self.label2Name[self.dic[path].label]=self.dic[path].wordName
+                
+                if not count.has_key(self.dic[path].label):
+                    count[self.dic[path].label]=1
+                else:
+                    count[self.dic[path].label]+=1
+            for path in self.filelist:
+                if count[self.dic[path].label]>=num:
+                    ret.add(self.dic[path].label)
+            return ret
+        
+    def test_svm(self):
+        leastNo=2
+        intoAccountSet=self.get_classes_with_at_least_num_of_data(leastNo)
+        self.trainSet,self.testSet=self.split_data(intoAccountSet)
+        train_labels=[]
+        train_data=[]
+        test_labels=[]
+        test_data=[]
+        for path in self.trainSet:
+            train_labels.append(self.dic[path].label)
+            train_data.append(self.dic[path].combinedFeature)
+        testpathlist=[]
+        for path in self.testSet:
+            test_labels.append(self.dic[path].label)
+            test_data.append(self.dic[path].combinedFeature)
+            testpathlist.append(path)
+        
+        svm_m1=train_svm_model(train_labels,train_data)
+        svm_save_model("/home/lzz/svmModel",svm_m1)
+        svm_m2= svm_load_model("/home/lzz/svmModel")
+        svm_res1=test_svm_model(svm_m2,test_labels,test_data)
+        #plot_a_graph();
+        pred_labels=svm_res1[0];
+        for i in range (len(testpathlist)):
+            path=testpathlist[i]
+            self.dic[path].pred=self.label2Name[int(pred_labels[i])]
+        
+        
+        varianceSum1=0
+        varianceSum2=0
+        same=0
+        different=0
+        for i in range (len(testpathlist)):
+            path=testpathlist[i]
+            print self.dic[path].pred,self.dic[path].wordName
+            if(self.dic[path].pred==self.dic[path].wordName):
+                varianceSum1+=self.dic[path].variance
+                same+=1
+            else:
+                varianceSum2+=self.dic[path].variance
+                different+=1
+        print float(varianceSum1)/float(same),float(varianceSum2)/float(different)
+        return testpathlist
+        
+    def showResult(self,testpathlist):
+        hand_result=open("/home/lzz/project/project/save/Result.txt","w")
+        
+        for path in self.filelist:
+            if path in self.trainSet:
+                hand_result.write(self.dic[path].wordName,self.dic[path].hand_index_list)
+            if path in self.testSet:
+                if self.dic[path].wordName==self.dic[path].pred:
+                    TF=1
+                else:
+                    TF=0
+                hand_result.write(TF,self.dic[path].wordName,self.dic[path].pred,self.dic[path].hand_index_list)
+    
+        hand_result.close()
+        
+
+if __name__ == '__main__':
+    caffedl=caffeDL()
+    classifier = Classifier()
+    pathTotal='/media/lzz/Data1/Aaron/1-250/'
+    pathTotal='/home/lzz/sample/2data/'
+    classifier.listFile(pathTotal)
+    #classifier.filelist=["/media/lzz/Data1/Aaron/1-250/HKG_002_a_0002 Aaron 1361","/media/lzz/Data1/Aaron/1-250/HKG_002_a_0002 Aaron 1372","/media/lzz/Data1/Aaron/1-250/HKG_001_a_0001 Aaron 11","/media/lzz/Data1/Aaron/1-250/HKG_001_a_0001 Aaron 22"]
+    for path in classifier.filelist:
+        classifier.buildDic(path)
+    classifier.imageProcssing()
+    classifier.getCaffeFeature(caffedl.net)
+    classifier.separateCaffeFeature()
+    classifier.constructLabelData()
+    testPathList=classifier.test_svm()
+    classifier.showResult(testPathList)    
+    
+
+        
+
+
+'''class Classifier():
     def __init__(self):
         self.batch_size=80
         self.word=-1
@@ -349,7 +720,45 @@ if __name__ == '__main__':
     classifier.combination(classifier.displacement,classifier.hogKey,classifier.handshape)
     assert len(classifier.label)==len(classifier.data)
     predLabel,testLabel,initial_index_test,testClass2initialIndex=test_svm(classifier.label,classifier.data,classifier.variance)
-    classifier.showResult(predLabel,testLabel,initial_index_test,testClass2initialIndex)
+    classifier.showResult(predLabel,testLabel,initial_index_test,testClass2initialIndex)'''
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
     
 '''if __name__ == '__main__':

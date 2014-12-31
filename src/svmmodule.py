@@ -15,7 +15,7 @@ from constant_numbers import *
 
 
 
-def get_classes_with_at_least_num_of_data(labels,num=2):
+'''def get_classes_with_at_least_num_of_data(labels,num=2):
     ret=set()
     count={}
     for label in labels:
@@ -26,7 +26,7 @@ def get_classes_with_at_least_num_of_data(labels,num=2):
     for label in labels:
         if count[label]>=num:
             ret.add(label)
-    return ret
+    return ret'''
 
 def train_svm_model(labels,data,para='-t 0 -c 1000 -b 1'):
     assert len(labels)==len(data)
@@ -44,8 +44,8 @@ def test_svm_model(m,labels,data):
 
 
 
-def test_svm(labels,data,variance,bin_num=4,level_num=2,level_num_hog=3,para='-s 0 -c 2048 -t 2 -g 0.5'):
-    train_labels,train_data,test_labels,test_data,initial_index_test,testClass2initialIndex=split_data(labels,data,get_classes_with_at_least_num_of_data(labels,num=3))
+#def test_svm(labels,data,variance,bin_num=4,level_num=2,level_num_hog=3,para='-s 0 -c 2048 -t 2 -g 0.5'):
+#    train_labels,train_data,test_labels,test_data,initial_index_test,testClass2initialIndex=split_data(labels,data,get_classes_with_at_least_num_of_data(labels,num=3))
     '''Sparse Representation
     f_sr_l=open("F:/study/save/generating/sparse/sr_l.txt","w")
     f_sr_d=open("F:/study/save/generating/sparse/sr_d.txt","w")
@@ -93,7 +93,7 @@ def test_svm(labels,data,variance,bin_num=4,level_num=2,level_num_hog=3,para='-s
             test_data[int(i/7)].append(test_data2[i])
             index+=1
 '''
-    svm_m1=train_svm_model(train_labels,train_data)
+    '''svm_m1=train_svm_model(train_labels,train_data)
     svm_res1=test_svm_model(svm_m1,test_labels,test_data)
     #plot_a_graph();
     
@@ -110,7 +110,16 @@ def test_svm(labels,data,variance,bin_num=4,level_num=2,level_num_hog=3,para='-s
             varianceSum2+=variance[initial_index_test[i]]
             different+=1
     print float(varianceSum1)/float(same),float(varianceSum2)/float(different)
-    return pred_labels,test_labels,initial_index_test,testClass2initialIndex
+    return pred_labels,test_labels,initial_index_test,testClass2initialIndex'''
+    
+    
+    
+    
+    
+    
+    
+    
+    
     '''pred_three=[];
     right=0;
     rightonly=0;
@@ -135,4 +144,4 @@ def test_svm(labels,data,variance,bin_num=4,level_num=2,level_num_hog=3,para='-s
 #    str1="top1:right=%r,total=%r,accurary=%10.3f%%"%(rightonly,len(test_labels),100*rightonly/len(test_labels));
 #    print str2
 #    print str1
-    return 0;
+ #   return 0;

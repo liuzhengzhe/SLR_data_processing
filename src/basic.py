@@ -42,7 +42,7 @@ def get_vector(x1,y1,z1,x2,y2,z2,scale):
         return 0,0
     return (float(x1-x2)/float(scale)),(float(y1-y2)/float(scale)),(float(z1-z2)/float(scale))
 
-def split_data(labels,data,classes_in_test=range(1,51)):
+'''def split_data(labels,data,classes_in_test=range(1,51)):
 #     labels,data=shuffle_data(labels,data)
     test_indexes=[]
 #     flag=[0]*(len(set(labels))+1)
@@ -71,7 +71,7 @@ def split_data(labels,data,classes_in_test=range(1,51)):
             train_labels.append(labels[i])
 #             train_data.append(convert_features(data[i]))
             train_data.append(data[i])
-    return train_labels,train_data,test_labels,test_data,initial_index_test,testClass2initialIndex
+    return train_labels,train_data,test_labels,test_data,initial_index_test,testClass2initialIndex'''
 
 
 def normalize_histogram(bins):
