@@ -353,7 +353,31 @@ class Classifier():
                 if count[self.dic[path].label]>=num:
                     ret.add(self.dic[path].label)
             return ret
-        
+    def saveModel(self):
+        leastNo=2
+        intoAccountSet=self.get_classes_with_at_least_num_of_data(leastNo)
+        self.trainSet,self.testSet=self.split_data(intoAccountSet)
+        train_labels=[]
+        train_data=[]
+        test_labels=[]
+        test_data=[]
+        for path in self.trainSet:
+            train_labels.append(self.dic[path].label)
+            train_data.append(self.dic[path].combinedFeature)
+        for path in self.testSet:
+            train_labels.append(self.dic[path].label)
+            train_data.append(self.dic[path].combinedFeature)
+            test_labels.append(self.dic[path].label)
+            test_data.append(self.dic[path].combinedFeature)
+        svm_m1=train_svm_model(train_labels,train_data)
+        svm_save_model("/home/lzz/svmModel",svm_m1)
+
+        index2Model=open("/home/lzz/ModelIndex.txt","w")
+        for path in self.testSet:
+            index2Model.write(str(self.dic[path].label)+" "+str(self.dic[path].wordName)+"\n")
+        index2Model.close()
+
+
     def test_svm(self):
         leastNo=2
         intoAccountSet=self.get_classes_with_at_least_num_of_data(leastNo)
@@ -370,7 +394,7 @@ class Classifier():
             test_labels.append(self.dic[path].label)
             test_data.append(self.dic[path].combinedFeature)
             testpathlist.append(path)
-        
+
         svm_m1=train_svm_model(train_labels,train_data)
         svm_save_model("/home/lzz/svmModel",svm_m1)
         svm_m2= svm_load_model("/home/lzz/svmModel")
@@ -418,7 +442,6 @@ if __name__ == '__main__':
     caffedl=caffeDL()
     classifier = Classifier()
     pathTotal='/media/lzz/Data1/Aaron/1-250/'
-    pathTotal='/home/lzz/sample/2data/'
     classifier.listFile(pathTotal)
     #classifier.filelist=["/media/lzz/Data1/Aaron/1-250/HKG_002_a_0002 Aaron 1361","/media/lzz/Data1/Aaron/1-250/HKG_002_a_0002 Aaron 1372","/media/lzz/Data1/Aaron/1-250/HKG_001_a_0001 Aaron 11","/media/lzz/Data1/Aaron/1-250/HKG_001_a_0001 Aaron 22"]
     for path in classifier.filelist:
@@ -427,8 +450,8 @@ if __name__ == '__main__':
     classifier.getCaffeFeature(caffedl.net)
     classifier.separateCaffeFeature()
     classifier.constructLabelData()
-    testPathList=classifier.test_svm()
-    classifier.showResult(testPathList)    
+    testPathList=classifier.saveModel()
+    #classifier.showResult(testPathList)
     
 
         
