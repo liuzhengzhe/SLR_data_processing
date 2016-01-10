@@ -21,10 +21,10 @@ import lstm.RNN_with_gating
 #import whole_network,whole_level_network
 
 if __name__ == '__main__':
-    caffedl=caffeDL('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto/lenet_test.prototxt','/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/model/lenet_iter_5000.caffemodel')
-    #caffedl=caffeDL('/home/lzz/caffe/caffe-master/examples/imagenet/train_val_16_py.prototxt','/home/lzz/caffe/caffe-master/examples/imagenet/model/4096_iter_10000.caffemodel')
-    caffedlInter=caffeDL('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_inter/lenet_test.prototxt','/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/model/lenet__iter_400.caffemodel')
-    #caffedlInter=caffeDL('/home/lzz/caffe/caffe-master/examples/imagenet/train_val_16_py.prototxt','/home/lzz/caffe/caffe-master/examples/imagenet/intermodel/24inter_iter_300.caffemodel')
+    #caffedl=caffeDL('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto/lenet_test.prototxt','/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/model/lenet_iter_5000.caffemodel')
+    caffedl=caffeDL('/home/lzz/caffe/caffe-master/examples/imagenet/train_val_16_py.prototxt','/home/lzz/caffe/caffe-master/examples/imagenet/model/4096_iter_10000.caffemodel')
+    #caffedlInter=caffeDL('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_inter/lenet_test.prototxt','/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/model/lenet__iter_400.caffemodel')
+    caffedlInter=caffeDL('/home/lzz/caffe/caffe-master/examples/imagenet/intermodel/train_val_inter.prototxt','/home/lzz/caffe/caffe-master/examples/imagenet/intermodel/24inter_iter_300.caffemodel')
     classifier = Classifier()
     #pathTotal='/media/lzz/HD1/1Michael/split/301-610new/'
     #pathTotal='/media/lzz/HD1/1Michael/split/791-1000/'
@@ -61,7 +61,7 @@ if __name__ == '__main__':
         #classifier.splitdevisign(trainname,testname,'P01',1)
     elif dataset=='our':
         #pathTotal='/home/lzz/sign/data/'
-        pathTotal='/media/lzz/Data1/kinect/'
+        pathTotal='/media/lzz/Data1/kinect/try/'
         #pathTotal='/media/lzz/HD1/newkinect/'
         trainname['hfy']=0
         trainname['fuyang']=0

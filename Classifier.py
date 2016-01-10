@@ -179,7 +179,7 @@ class Classifier():
                         img2=cv2.copyMakeBorder(img, 0,0, int(abs(sp[0]-sp[1])/2),int(abs(sp[0]-sp[1])/2), cv2.BORDER_CONSTANT, value=(0, 0, 0, 0))
                     else:
                         img2=cv2.copyMakeBorder(img, int(abs(sp[0]-sp[1])/2),int(abs(sp[0]-sp[1])/2),0,0, cv2.BORDER_CONSTANT, value=(0, 0, 0, 0))
-                    img3=cv2.resize(img2,(128,128))
+                    img3=cv2.resize(img2,(227,227))
 
                     #cv2.imwrite('/home/lzz/svm/after/'+str(self.dic[path].topIndex[i])+".jpg",img3)
                     #imgs.append(img3)
@@ -198,7 +198,7 @@ class Classifier():
                         net.predict(self.batch,False)
                         print str(b)+"finished processing"
                         for s in range(len(self.batch)):
-                            feat = net.blobs['ip1'].data[s].flatten().tolist()
+                            feat = net.blobs['fc7'].data[s].flatten().tolist()
 
                             self.featureTotal.append(feat)
                         del self.batch
@@ -210,7 +210,7 @@ class Classifier():
                         net2.predict(self.batch2,False)
                         print "inter"+str(bInter)+"finished processing"
                         for s in range(len(self.batch2)):
-                            feat = net2.blobs['ip1'].data[s].flatten().tolist()
+                            feat = net2.blobs['fc7'].data[s].flatten().tolist()
                             self.featureTotal2.append(feat)
                         self.batch2=[]
                         bInter+=1
@@ -224,7 +224,7 @@ class Classifier():
                     #img=cv2.imread(imgname[0])
                     sp=img.shape
                     img2=cv2.copyMakeBorder(img, 0,0, int(abs(sp[0]-sp[1])/2),int(abs(sp[0]-sp[1])/2), cv2.BORDER_CONSTANT, value=(0, 0, 0, 0))
-                    img3=cv2.resize(img2,(128,128))
+                    img3=cv2.resize(img2,(227,227))
                     img3=img3/255.0
                     #imgs.append(img3)
 
@@ -236,7 +236,7 @@ class Classifier():
                         net.predict(self.batch,False)
                         print str(b)+"finished processing"
                         for s in range(len(self.batch)):
-                            feat = net.blobs['ip1'].data[s].flatten().tolist()
+                            feat = net.blobs['fc7'].data[s].flatten().tolist()
                             self.featureTotal.append(feat)
                             #feat2= net.blobs['prob'].data[s].flatten().tolist()
                             #self.featureTotal2.append(feat2)
@@ -266,7 +266,7 @@ class Classifier():
                 net.predict(self.batch,False)
                 print str(b)+"finished processing"
                 for s in range(len(self.batch)):
-                    feat = net.blobs['ip1'].data[s].flatten().tolist()
+                    feat = net.blobs['fc7'].data[s].flatten().tolist()
                     #print feat
                     self.featureTotal.append(feat)
                     #feat2= net.blobs['prob'].data[s].flatten().tolist()
@@ -280,7 +280,7 @@ class Classifier():
                 net2.predict(self.batch2,False)
                 print str(bInter)+"finished processing"
                 for s in range(len(self.batch2)):
-                    feat = net2.blobs['ip1'].data[s].flatten().tolist()
+                    feat = net2.blobs['fc7'].data[s].flatten().tolist()
                     #print feat
                     self.featureTotal2.append(feat)
                     #feat2= net.blobs['prob'].data[s].flatten().tolist()

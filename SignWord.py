@@ -1287,7 +1287,7 @@ class SignWord():
                         img2=cv2.copyMakeBorder(image, 0,0, int(abs(sp[0]-sp[1])/2),int(abs(sp[0]-sp[1])/2), cv2.BORDER_CONSTANT, value=(0, 0, 0, 0))
                     else:
                         img2=cv2.copyMakeBorder(image, int(abs(sp[0]-sp[1])/2),int(abs(sp[0]-sp[1])/2),0,0, cv2.BORDER_CONSTANT, value=(0, 0, 0, 0))
-                    img3=cv2.resize(img2,(128,128))
+                    img3=img2
                     image=img3/255.0
                     image = color.rgb2gray(image)
                     image = color.rgb2gray(image)
@@ -1308,7 +1308,7 @@ class SignWord():
                         img2=cv2.copyMakeBorder(image, 0,0, int(abs(sp[0]-sp[1])/2),int(abs(sp[0]-sp[1])/2), cv2.BORDER_CONSTANT, value=(0, 0, 0, 0))
                     else:
                         img2=cv2.copyMakeBorder(image, int(abs(sp[0]-sp[1])/2),int(abs(sp[0]-sp[1])/2),0,0, cv2.BORDER_CONSTANT, value=(0, 0, 0, 0))
-                    img3=cv2.resize(img2,(128,128))
+                    img3=img2
                     image=img3/255.0
                     image = color.rgb2gray(image)
                     fd, hog_image = hog(image, orientations=9, pixels_per_cell=(60,60),cells_per_block=(2, 2), visualise=True)
@@ -1330,7 +1330,7 @@ class SignWord():
                         img2=cv2.copyMakeBorder(image, 0,0, int(abs(sp[0]-sp[1])/2),int(abs(sp[0]-sp[1])/2), cv2.BORDER_CONSTANT, value=(0, 0, 0, 0))
                     else:
                         img2=cv2.copyMakeBorder(image, int(abs(sp[0]-sp[1])/2),int(abs(sp[0]-sp[1])/2),0,0, cv2.BORDER_CONSTANT, value=(0, 0, 0, 0))
-                    img3=cv2.resize(img2,(128,128))
+                    img3=img2
                     image=img3/255.0
                     image = color.rgb2gray(image)
                     image = color.rgb2gray(image)
