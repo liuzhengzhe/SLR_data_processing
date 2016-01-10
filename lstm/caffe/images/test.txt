@@ -1,0 +1,5 @@
+/home/lzz/project/project/caffe/images/image/02.jpg
+/home/lzz/project/project/caffe/images/image/03.jpg
+/home/lzz/project/project/caffe/images/image/04.jpg
+/home/lzz/project/project/caffe/images/image/06.jpg
+/home/lzz/project/project/caffe/images/image/07.jpg

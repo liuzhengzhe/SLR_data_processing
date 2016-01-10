@@ -1,0 +1,46 @@
+(dp0
+S'/media/lzz/Data1/kinect/try2//HKG_001_b_0038 lzz 7'
+p1
+(lp2
+cnumpy.core.multiarray
+scalar
+p3
+(cnumpy
+dtype
+p4
+(S'f8'
+p5
+I0
+I1
+tp6
+Rp7
+(I3
+S'<'
+p8
+NNNI-1
+I-1
+I0
+tp9
+bS'2\x8a\xa9O^\xde\xe1?'
+p10
+tp11
+Rp12
+asS'/media/lzz/Data1/kinect/try2//HKG_001_b_0038 lzz 2'
+p13
+(lp14
+g3
+(g7
+S'\x90\xd1\x8f\xa3\x92+\xe1?'
+p15
+tp16
+Rp17
+asS'/media/lzz/Data1/kinect/try2//HKG_001_b_0038 lzz 1'
+p18
+(lp19
+g3
+(g7
+S'\xbe\xe5\x06s\x07\xc9\xd7?'
+p20
+tp21
+Rp22
+as.

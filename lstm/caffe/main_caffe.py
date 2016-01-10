@@ -1,0 +1,213 @@
+'''
+
+@author: XXXXX
+'''
+'''
+Created on Oct 14, 2014
+
+@author: liuzz
+'''
+'''
+Created on 2014-7-30
+
+@author: lenovo
+'''
+from svmutil import *
+from svmmodule import *
+import matplotlib
+import sqlite3
+import math
+import numpy
+import struct
+#from hmm.continuous.GMHMM import GMHMM
+from cluster import KMeansClustering
+import time
+import random
+import matplotlib.pyplot as plt
+import marshal, pickle
+import svmmodule
+from hmmmodule import *
+from basic import *
+from load import *
+from constant_numbers import *
+from hodmodule import *
+from hogmodule import *
+from svmmodule import *
+
+
+label2classNo={}
+
+def load_data_no_mog(db_file_name):
+    RAW_DATA_LENGTH=32
+    db = sqlite3.connect(db_file_name)
+    cu=db.cursor()
+    labels=[]
+    signerlist=[]
+    #label2classNo={}
+    classNo2Label={}
+    classNo=0
+    current_data_index=-1
+    current_sign_id=-1
+    current_class_id=-1
+    data=[]
+    name=[]
+    filenamelist=[]
+    whole=db.execute("Select FrameData.SampleIndex,FrameData.index_ID,SignId,signer,FileName,SkeletonShoulderLeftX, \
+    SkeletonShoulderLeftY,SkeletonShoulderLeftZ,SkeletonShoulderRightX,SkeletonShoulderRightY,\
+    SkeletonShoulderRightZ,SkeletonElbowLeftX,SkeletonElbowLeftY,SkeletonElbowLeftZ,SkeletonElbowRightX,\
+    SkeletonElbowRightY,SkeletonElbowRightZ,SkeletonHandLeftX,SkeletonHandLeftY,SkeletonHandLeftZ,\
+    SkeletonHandRightX,SkeletonHandRightY,SkeletonHandRightZ,SkeletonHeadX,SkeletonHeadY,\
+    SkeletonHeadZ,SkeletonHipCenterX,SkeletonHipCenterY,SkeletonHipCenterZ,SkeletonWristLeftX,\
+    SkeletonWristLeftY,SkeletonWristLeftZ,SkeletonWristRightX,SkeletonWristRightY,SkeletonWristRightZ,\
+    LeftHandHOG,RightHandHog from FrameData, SignSample where FrameData.SampleIndex=SignSample.index_ID\
+     ORDER BY  SignSample.SignID,FrameData.SampleIndex,FrameData.FrameNumber;")
+    for sign_id,frame_id,word_id,signer,filename,lsx,lsy,lsz,rsx,rsy,rsz,lex,ley,lez,rex,rey,lez,lhx,lhy,\
+    lhz,rhx,rhy,rhz,hx,hy,hz,hipcx,hipcy,hipcz,lwx,lwy,lwz,rwx,rwy,rwz,leftHog,rightHog \
+    in whole:    
+        '''cu.execute("Select Intersected from SignSample where index_ID="+str(sign_id))
+        intersected=cu.fetchall()
+        inter=intersected[0][0]
+        if(inter==1):
+            continue'''
+        if current_class_id!=word_id and (not label2classNo.has_key(word_id)):
+            classNo+=1
+            current_class_id=word_id
+            label2classNo[word_id]=classNo
+            classNo2Label[classNo]=word_id
+        
+        if current_sign_id!=sign_id:
+            #new sign record
+#            if current_data_index>=0 and len(data[current_data_index])<54:
+#                print '!!!!',current_sign_id,len(data[current_data_index])
+            current_sign_id=sign_id
+            data.append(list())
+            signerlist.append(signer)
+            name.append(word_id)
+            filenamelist.append(filename)
+            labels.append(label2classNo[word_id]) 
+            current_data_index+=1
+#         print current_sign_id,len(data)
+        if lsx:
+            if(current_data_index<0):
+                x=1
+            data[current_data_index].append([lsx,lsy,lsz,rsx,rsy,rsz,lex,ley,lez,rex,rey,lez,lhx,lhy,lhz,rhx,rhy,rhz,hx,hy,hz,hipcx,hipcy,hipcz,lwx,lwy,lwz,rwx,rwy,rwz,leftHog,rightHog])
+#         print data[current_data_index]
+    return labels,data,name,signerlist,filenamelist,classNo2Label
+
+
+def construct_features(labels,data,signer,name,bin_num=8,level_num=2,level_num_hog=3):
+    assert len(labels)==len(data)
+    templates=load_templates("../data/hog_60template15mean.txt")
+    #templates=load_templates("F:/study/save/generating/handshape/tmp.txt")
+    ret_labels=[]
+    features=[]
+    ret_name=[]
+    ret_signer=[]
+#    fout=open("test.txt","wt")
+#    f=open("../save/generating/hog/tmp.txt","w")
+#    f_length=open("../save/generating/kmedoid/length.txt","w")
+    for i in range(0,len(labels)):
+        frames=data[i]
+        if(i==127):
+            i=127      
+        if len(frames)==0:
+            print i,labels[i],frames
+            continue
+        movement=hod(frames,bin_num,level_num)
+        movement_descriptor=movement[0]
+        deter_left=movement[1]
+        deter_right=movement[2]
+        hand_shape_descriptor=construct_hog_binary_features(frames,templates,1,level_num_hog,deter_left,deter_right,name[i])
+
+        if sum(hand_shape_descriptor)==0:
+            print i,'no length'
+            continue
+        ret_labels.append(labels[i])
+        ret_name.append(name[i])
+        ret_signer.append(signer[i])
+#         print "extracting feature:",i
+        #features.append(normalize_histogram(movement_descriptor))
+        features.append(normalize_histogram(movement_descriptor)+normalize_histogram(hand_shape_descriptor))
+#         features.append(hod(frames))
+#         features.append(construct_hog_binary_features(frames,templates))#+construct_accumulative_features(frames))
+#         features.append(construct_hog_binary_features(frames,templates))#+construct_accumulative_features(frames))
+    return ret_labels,features,ret_name,ret_signer
+
+
+
+    
+
+ 
+
+
+
+if __name__ == '__main__':
+    level1=2;
+    level2=2;
+    rawname='database_aaron_';
+
+#    rawname='database_empty';
+#    rawname2='database_empty.db';
+    #rawname='databasemany';
+    #rawname2='databasemany.db';
+ #   rawname='Aaron_1_50';
+ #   rawname2='Aaron1-50.db';
+#    rawname='Aaron_141_181';
+#    rawname2='Aaron 141-181.db';
+    #rawname='database';
+    #rawname2='database.db';
+#    rawname='database_791_821';
+#    rawname2='database791-821.db';
+    tablename=rawname+'_%r_%r'%(level1-1,level2-1);
+    #tablename=rawname
+#     labels,raw_data=[],[]
+    strname='../data/'+tablename;
+
+#    
+
+    res_file=open('results.txt','w')
+
+    db_file_name="../data/features.db";
+    db2 = sqlite3.connect(db_file_name);
+    cu=db2.cursor(); 
+
+
+    feat=open('D:/eclipse/project/save/generating/caffe/big.txt')
+    fe=feat.read().split(" ")
+    feature=[]
+    for i in range(len(fe)-1):
+        fe[i]=float(fe[i])
+    for i in range(421):
+        feature.append([])
+    for i in range(421):
+        label=int(fe[i*4097]);
+        for j in range(4096):
+            feature[label].append(fe[i*4097+1+j])
+    cu.execute("select label,data,name from "+tablename);
+    p=cu.fetchall();
+    labels=[];
+    data=[];
+    i2=-1
+    f1=open("D:/eclipse/project/save/generating/caffe/dic.txt")
+    dic0=f1.readlines()
+    
+    dic={}
+    for i in range(len(dic0)):
+        dic00=dic0[i].split(" ",1)
+        dic[dic00[1][:-1]]=int(dic00[0])
+    
+        #dic(dic0[i][0])=
+    for i in range(len(p)):
+            ptemp=p[i][1].replace('\\n','\n');
+            ptemp=str(ptemp);
+            t2 = pickle.loads(ptemp);
+#            t2=t2[0:192]
+            if(dic.has_key(p[i][2][:-4])==0):
+                continue
+            '''print dic[p[i][2][:-4]]
+            tmp=normalize_histogram(feature[dic[p[i][2][:-4]]-1])
+            t2.extend(tmp)'''
+            labels.append(p[i][0]);
+            data.append(t2);                
+    test_svm(labels,data,bin_num=8,level_num=level1,level_num_hog=level2);
+
