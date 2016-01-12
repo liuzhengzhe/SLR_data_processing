@@ -158,21 +158,29 @@ class SignWordEdu(SignWord):
                 self.steps.append(self.topIndex[i])
         print self.steps
         stepdetail=[]
+        fystep=[]
         for f in self.steps:
             headx=self.headpos[0]
             heady=self.headpos[1]
             shoulder=self.shoulder+0.000001
             tall=self.tall
             dic={}
-            #dic['sample']=self.sampleName
+            dic['sample']=self.sampleName
             dic['frame']=f
             dic['type']=self.dict[f].ftype
             dic['pos']=[self.dict[f].position[0],self.dict[f].position[1],self.dict[f].position[2],self.dict[f].position[3],(self.dict[f].position[0]-headx)/shoulder,(self.dict[f].position[1]-heady)/tall,(self.dict[f].position[2]-headx)/shoulder,(self.dict[f].position[3]-heady)/tall]
 
-            #dic['handshape']=self.dict[f].standardhand
-            #dic['lefthandshape']=self.dict[f].standardlefthand
+            dic['handshape']=self.dict[f].standardhand
+            dic['lefthandshape']=self.dict[f].standardlefthand
+
+            fydic={}
+            fydic['frame']=f
+            fydic['type']=self.dict[f].ftype
+            fydic['pos']=[self.dict[f].position[0],self.dict[f].position[1],self.dict[f].position[2],self.dict[f].position[3],(self.dict[f].position[0]-headx)/shoulder,(self.dict[f].position[1]-heady)/tall,(self.dict[f].position[2]-headx)/shoulder,(self.dict[f].position[3]-heady)/tall]
+
             stepdetail.append(dic)
-        return stepdetail
+            fystep.append(fydic)
+        return stepdetail,fystep
 class EduClassifier(Classifier):
 
     def listFileEdu(self,path,dic):
@@ -198,20 +206,22 @@ class EduClassifier(Classifier):
                 self.listFileEdu(path+"/"+file,dic)
     def getPart(self):
         self.edudic={}
+        self.fydic={}
         for path in self.filelist:
             #if self.edudic.has_key(self.dic[path].wordName):
             if self.dic[path].traintest=='train':
                 continue
             print path
-            stepdetail=self.dic[path].getPart(caffedl.net,caffedlInter.net)
-            self.edudic[self.dic[path].sampleName]=stepdetail
-
+            stepdetail,fystep=self.dic[path].getPart(caffedl.net,caffedlInter.net)
+            self.edudic[self.dic[path].wordName]=stepdetail
+            self.fydic[self.dic[path].sampleName]=fystep
 
         #with open('/home/lzz/Education.txt', 'w') as outfile:
         #    json.dump(data, outfile)
-
-        with open('EducationFy.json', 'wb') as handle:
+        with open('EducationNew.json', 'wb') as handle:
           json.dump(self.edudic, handle)
+        with open('EducationFy.json', 'wb') as handle:
+          json.dump(self.fydic, handle)
 if __name__ == '__main__':
     caffedl=caffeDL('../../proto/lenet_test.prototxt','../../model/lenet_iter_5000.caffemodel')
     #caffedl=caffeDL('/home/lzz/caffe/caffe-master/proto/lenet_test.prototxt','/home/lzz/sign/200d/lenet_iter_1800.caffemodel')

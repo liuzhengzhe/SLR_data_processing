@@ -179,7 +179,7 @@ class Classifier():
                         img2=cv2.copyMakeBorder(img, 0,0, int(abs(sp[0]-sp[1])/2),int(abs(sp[0]-sp[1])/2), cv2.BORDER_CONSTANT, value=(0, 0, 0, 0))
                     else:
                         img2=cv2.copyMakeBorder(img, int(abs(sp[0]-sp[1])/2),int(abs(sp[0]-sp[1])/2),0,0, cv2.BORDER_CONSTANT, value=(0, 0, 0, 0))
-                    img3=cv2.resize(img2,(128,128))
+                    img3=cv2.resize(img2,(227,227))
 
                     #cv2.imwrite('/home/lzz/svm/after/'+str(self.dic[path].topIndex[i])+".jpg",img3)
                     #imgs.append(img3)
@@ -198,7 +198,7 @@ class Classifier():
                         net.predict(self.batch,False)
                         print str(b)+"finished processing"
                         for s in range(len(self.batch)):
-                            feat = net.blobs['ip1'].data[s].flatten().tolist()
+                            feat = net.blobs['fc7'].data[s].flatten().tolist()
 
                             self.featureTotal.append(feat)
                         del self.batch
@@ -210,7 +210,7 @@ class Classifier():
                         net2.predict(self.batch2,False)
                         print "inter"+str(bInter)+"finished processing"
                         for s in range(len(self.batch2)):
-                            feat = net2.blobs['ip1'].data[s].flatten().tolist()
+                            feat = net2.blobs['fc7'].data[s].flatten().tolist()
                             self.featureTotal2.append(feat)
                         self.batch2=[]
                         bInter+=1
@@ -224,7 +224,7 @@ class Classifier():
                     #img=cv2.imread(imgname[0])
                     sp=img.shape
                     img2=cv2.copyMakeBorder(img, 0,0, int(abs(sp[0]-sp[1])/2),int(abs(sp[0]-sp[1])/2), cv2.BORDER_CONSTANT, value=(0, 0, 0, 0))
-                    img3=cv2.resize(img2,(128,128))
+                    img3=cv2.resize(img2,(227,227))
                     img3=img3/255.0
                     #imgs.append(img3)
 
@@ -236,7 +236,7 @@ class Classifier():
                         net.predict(self.batch,False)
                         print str(b)+"finished processing"
                         for s in range(len(self.batch)):
-                            feat = net.blobs['ip1'].data[s].flatten().tolist()
+                            feat = net.blobs['fc7'].data[s].flatten().tolist()
                             self.featureTotal.append(feat)
                             #feat2= net.blobs['prob'].data[s].flatten().tolist()
                             #self.featureTotal2.append(feat2)
@@ -266,7 +266,7 @@ class Classifier():
                 net.predict(self.batch,False)
                 print str(b)+"finished processing"
                 for s in range(len(self.batch)):
-                    feat = net.blobs['ip1'].data[s].flatten().tolist()
+                    feat = net.blobs['fc7'].data[s].flatten().tolist()
                     #print feat
                     self.featureTotal.append(feat)
                     #feat2= net.blobs['prob'].data[s].flatten().tolist()
@@ -280,7 +280,7 @@ class Classifier():
                 net2.predict(self.batch2,False)
                 print str(bInter)+"finished processing"
                 for s in range(len(self.batch2)):
-                    feat = net2.blobs['ip1'].data[s].flatten().tolist()
+                    feat = net2.blobs['fc7'].data[s].flatten().tolist()
                     #print feat
                     self.featureTotal2.append(feat)
                     #feat2= net.blobs['prob'].data[s].flatten().tolist()
@@ -404,7 +404,7 @@ class Classifier():
             sampleName=path.split('/')[-1]
             wordName=sampleName[0:sampleName.find(" ")]
             signer=sampleName[sampleName.find(" ")+1:sampleName.find(" ",sampleName.find(" ")+1)]
-            if name==signer:
+            if name.has_key(signer):
                 if (test.has_key(wordName)==0):
                     self.dic[path]=SignWord(path,0)
                     f=self.dic[path].loadData()
@@ -1370,50 +1370,34 @@ class Classifier():
         f.write(doc.toprettyxml(indent = ''))
         f.close()
     def savehdf5(self):
-        ftrain=open('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/hdf5train','w')
-        ftest=open('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/hdf5test','w')
-        ftrain.write('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/hdf5/train.h5')
-        ftest.write('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/hdf5/test.h5')
-
-        datas=[]
-        labels=[]
-        datavalid=[]
-        labelvalid=[]
-        datatest=[]
-        labeltest=[]
-
-
-
-
-
+        ftrainsingle=open('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/trainsingle','w')
+        ftestsingle=open('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/testsingle','w')
+        ftrainboth=open('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/trainboth','w')
+        ftestboth=open('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/testboth','w')
+        ftraininter=open('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/traininter','w')
+        ftestinter=open('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/testinter','w')
         for path in self.filelist:
-            if self.dic[path].traintest=='train':
-                if random.random()>0.1:
-                    datas.append(self.dic[path].handshape)
-                    labels.append(self.dic[path].label)
-                else:
-                    datavalid.append(self.dic[path].handshape)
-                    labelvalid.append(self.dic[path].label)
-            else:
-                datatest.append(self.dic[path].handshape)
-                labeltest.append(self.dic[path].label)
-        datas=np.array(datas)*1000.0
-        labels=np.array(labels).astype(np.float32).transpose()
-        datavalid=np.array(datavalid)*1000.0
-        labelvalid=np.array(labelvalid).astype(np.float32).transpose()
-        datatest=np.array(datatest)*1000.0
-        labeltest=np.array(labeltest).astype(np.float32).transpose()
-        with h5py.File('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/hdf5/train.h5', 'w') as f:
-            f['data'] = np.asarray(datas)
-            f['label'] = np.asarray(labels)
-        with h5py.File('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/hdf5/valid.h5', 'w') as f:
-            f['data'] = np.asarray(datavalid)
-            f['label'] = np.asarray(labelvalid)
-        with h5py.File('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/hdf5/test.h5', 'w') as f:
-            f['data'] = np.asarray(datatest)
-            f['label'] = np.asarray(labeltest)
-        fnum=open('./number.txt','w')
-        fnum.write(str(np.amax(labels)))
+            if self.dic[path].bothseparate==0 and self.dic[path].intersect==0:
+                if self.dic[path].traintest=='train':
+                    self.dic[path].savehdf5(ftrainsingle)
+                if self.dic[path].traintest=='test':
+                    self.dic[path].savehdf5(ftestsingle)
+            if self.dic[path].bothseparate==1:
+                if self.dic[path].traintest=='train':
+                    self.dic[path].savehdf5(ftrainboth)
+                if self.dic[path].traintest=='test':
+                    self.dic[path].savehdf5(ftestboth)
+            if self.dic[path].intersect==1:
+                if self.dic[path].traintest=='train':
+                    self.dic[path].savehdf5(ftraininter)
+                if self.dic[path].traintest=='test':
+                    self.dic[path].savehdf5(ftestinter)
+        ftrainboth.close()
+        ftraininter.close()
+        ftrainsingle.close()
+        ftestboth.close()
+        ftestinter.close()
+        ftestsingle.close()
 
     def trajehdf5(self):
 

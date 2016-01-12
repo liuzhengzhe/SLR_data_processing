@@ -12,6 +12,7 @@ import os
 import numpy
 import shutil
 from scipy import spatial
+import h5py
 class SignWord():
     def __init__(self,path,datamode):
         loc=path.rfind("/")
@@ -1374,7 +1375,6 @@ class SignWord():
         leftfeature=[]
         leftfeature2=[]
         for i in range(self.singlekeyNo):
-            print img_sum,i,len(featureTotal)
             feat = featureTotal[img_sum+i]
             feature.append(feat)
         img_sum+=self.singlekeyNo
@@ -1386,7 +1386,7 @@ class SignWord():
             leftfeat = featureTotal[img_sum+i]
             leftfeature.append(leftfeat)
         img_sum+=self.leftkeyNo
-        self.handshapes=feature
+        #self.handshapes=feature
         self.handshape=self.pooling(feature,1)
 
         if self.bothseparate==1:
@@ -1777,3 +1777,17 @@ class SignWord():
         #images=glob.glob(self.path+'/handshape/*#.jpg')
         #for p in images:
         #    f.write(p+' '+str(self.label)+'\n')
+    def savehdf5(self,f):
+
+
+        datas=[]
+        labels=[]
+        datas.append(self.combinedFeature)
+        labels.append(self.label)
+        datas=np.array(datas).astype(np.float32)*1000.0
+        labels=np.array(labels).astype(np.float32).transpose()
+
+        with h5py.File('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/hdf5/total/'+self.sampleName.replace(' ','+')+'.h5', 'w') as hdf5file:
+            hdf5file['data'] = datas
+            hdf5file['label'] = labels
+        f.write('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/hdf5/total/'+self.sampleName.replace(' ','+')+'.h5\n')

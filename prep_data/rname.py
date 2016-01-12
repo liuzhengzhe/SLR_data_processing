@@ -56,12 +56,12 @@ with open(os.path.join(dirname, 'test.txt'), 'w') as f:
 
 import glob
 import os
-paths=glob.glob('/media/lzz/Data1/kinect/newadd/new3/*')
+paths=glob.glob('/media/lzz/HD1/kinect/lzz/newadd/*')
 for path in paths:
     try:
         #print path,path.split(' ')[0]+' lzz '+path.split(' ')[-1]
-        #os.rename(path,path.split(' ')[0]+' lzz '+path.split(' ')[-2]+path.split(' ')[-1])
-        os.rename(path,path+'new3')
+        os.rename(path,path.split(' ')[0]+' lzz '+path.split(' ')[-2]+path.split(' ')[-1])
+        #os.rename(path,path+'new3')
     except:
         print path
 
