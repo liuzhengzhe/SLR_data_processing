@@ -21,7 +21,8 @@ class FrameConverter(object):
             'right': self.encode_image(depthFrame),
             'left': self.encode_image(colorFrame),
             'label': labelFrame,
-            'skeleton': skeletonFrame
+            'skeleton': skeletonFrame,
+            'position': [0,0,0,0]
         }
         encodedJSON = self.encoder.encode(encodedObject)
         '''if self.debug:

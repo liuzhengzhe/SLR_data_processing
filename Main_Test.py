@@ -21,10 +21,17 @@ import lstm.RNN_with_gating
 #import whole_network,whole_level_network
 
 if __name__ == '__main__':
+    #lenet
     #caffedl=caffeDL('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto/lenet_test.prototxt','/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/model/lenet_iter_5000.caffemodel')
-    caffedl=caffeDL('/home/lzz/caffe/caffe-master/examples/imagenet/train_val_16_py.prototxt','/home/lzz/caffe/caffe-master/examples/imagenet/model/4096_iter_10000.caffemodel')
     #caffedlInter=caffeDL('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_inter/lenet_test.prototxt','/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/model/lenet__iter_400.caffemodel')
+    #imagenet
+    caffedl=caffeDL('/home/lzz/caffe/caffe-master/examples/imagenet/train_val_16_py.prototxt','/home/lzz/caffe/caffe-master/examples/imagenet/model/4096_iter_10000.caffemodel')
     caffedlInter=caffeDL('/home/lzz/caffe/caffe-master/examples/imagenet/train_val_16_py.prototxt','/home/lzz/caffe/caffe-master/examples/imagenet/intermodel/24inter_iter_300.caffemodel')
+    #total
+    #caffedl=caffeDL('/home/lzz/caffe/caffe-master/examples/imagenet/train_val_16_py.prototxt','/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_total/total_iter_30000.caffemodel')
+    #caffedlInter=caffeDL('/home/lzz/caffe/caffe-master/examples/imagenet/train_val_16_py.prototxt','/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_total/total_iter_30000.caffemodel')
+
+
     classifier = Classifier()
     #pathTotal='/media/lzz/HD1/1Michael/split/301-610new/'
     #pathTotal='/media/lzz/HD1/1Michael/split/791-1000/'
@@ -60,12 +67,8 @@ if __name__ == '__main__':
         classifier.splitdevisign(trainname,testname,'',0)
         #classifier.splitdevisign(trainname,testname,'P01',1)
     elif dataset=='our':
-        #pathTotal='/home/lzz/sign/data/'
-        pathTotal='/media/lzz/HD11/kinect/'
-        #pathTotal='/media/lzz/HD1/newkinect/'
-        trainname['hfy']=0
-        trainname['fuyang']=0
-
+        #pathTotal='/media/lzz/HD1/kinecttry/'
+        pathTotal='/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/data/lzz/lzz1-100t4/'
         trainname['lzz']=0
         testname['Aaron']=0
         #testname['Michael']=0
@@ -74,18 +77,15 @@ if __name__ == '__main__':
         #classifier.split(trainname,testname,'xn',3)
         #classifier.split(trainname,testname,'lzz',1)
         dic={}
-        dic['Aaron']=0
+        dic['lzz']=0
+        #dic['Aaron']=0
         #dic['Michael']=0
         #dic['Micheal']=0
         classifier.listFile(pathTotal)
         print 'finish list'
-        classifier.split(trainname,testname,dic,0)
+        classifier.split(trainname,testname,dic,1)
 
     print 'finish initialization.'
-    classifier.constructLabelData()
-    classifier.label2Name={}
-    for path in classifier.filelist:
-        classifier.label2Name[classifier.dic[path].label]=classifier.dic[path].wordName
 
     #print 'copying...'
 
@@ -95,8 +95,7 @@ if __name__ == '__main__':
 
 
 
-    #for path in classifier.filelist:
-    #    classifier.buildDic(path,0)
+
 
     mode=2
 
@@ -109,6 +108,13 @@ if __name__ == '__main__':
     if mode==2:
         classifier.getInter()
 
+    classifier.constructLabelDatafromjson()
+
+
+
+
+
+
 
 
 
@@ -117,8 +123,6 @@ if __name__ == '__main__':
 
 
     classifier.getVelo()
-    #for f in classifier.filelist:
-    #    print classifier.dic[f].path,classifier.dic[f].intersect,classifier.dic[f].bothseparate,classifier.dic[f].shouldgenerate
     classifier.checkType()
 
     for path in classifier.filelist:
@@ -137,7 +141,7 @@ if __name__ == '__main__':
 
     classifier.constructTrajectory()
 
-    classifier.getHogFeature()
+    '''classifier.getHogFeature()
 
 
     #[[train1,train2,train3],[target1,target2,target3],[t1,t2,t3]],[[test1,test2,test3],[testtarget1,testtarget2,testtarget3],[t1,t2,t3]]=classifier.preLSTM()
@@ -148,7 +152,7 @@ if __name__ == '__main__':
     #classifier.trainWholeLevelFeature()
 
     #classifier.trainLSTM()
-    #classifier.testLSTM(test1,test2,test3,testtarget1,testtarget2,testtarget3,t1,t2,t3)
+    #classifier.testLSTM(test1,test2,test3,testtarget1,testtarget2,testtarget3,t1,t2,t3)'''
     classifier.getCaffeFeature(caffedl.net,caffedlInter.net)
 
     classifier.separateCaffeFeature()
@@ -161,11 +165,13 @@ if __name__ == '__main__':
     w1=1
     w2=1
     w3=1
-    classifier.combineFeature(w1,w2,w3)
+    #classifier.getDifficulty()
+    #classifier.combineFeature(w1,w2,w3)
+    '''
     w1=1
-    w2=1
-    w3=1
-    '''try:
+    w2=0
+    w3=0
+    try:
         classifier.getDifficulty()
     except:
         pass
@@ -177,8 +183,10 @@ if __name__ == '__main__':
         classifier.trajehdf5()
     except:
         pass'''
-    classifier.savehdf5()
-    classifier.test_svm(w1,w2,w3)
+    #classifier.savehdf5()
+    #classifier.savehdf5lzz()
+    #classifier.loadfeature(w1,w2,w3)
+    #classifier.test_svm(w1,w2,w3)
 
 
 

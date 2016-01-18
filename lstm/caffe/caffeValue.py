@@ -10,7 +10,7 @@ def caffeValue(rootpath):
     caffe_root = rootpath  # this file is expected to be i {caffe_root}/examples
     import sys
     #files=os.listdir("/home/lzz/caffe-master/new/handshapes/train/13/")
-    net=caffe.Classifier('/home/lzz/caffe/caffe-master/examples/imagenet/train_val_16_py.prototxt','/home/lzz/caffe/caffe-master/examples/imagenet/model/4096_iter_10000.caffemodel')
+    net=caffe.Classifier('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/train_val_16_py.prototxt','/home/lzz/caffe/caffe-master/examples/imagenet/model/4096_iter_10000.caffemodel')
     #net = caffe.Classifier('/home/lzz/caffe-master/deeplab/test.prototxt',  '/home/lzz/caffe-master/deeplab/model.caffemodel')
     net.set_phase_test()
     net.set_mode_cpu()

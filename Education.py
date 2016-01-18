@@ -23,7 +23,7 @@ class SignWordEdu(SignWord):
                     img2=cv2.copyMakeBorder(img, 0,0, int(abs(sp[0]-sp[1])/2),int(abs(sp[0]-sp[1])/2), cv2.BORDER_CONSTANT, value=(0, 0, 0, 0))
                 else:
                     img2=cv2.copyMakeBorder(img, int(abs(sp[0]-sp[1])/2),int(abs(sp[0]-sp[1])/2),0,0, cv2.BORDER_CONSTANT, value=(0, 0, 0, 0))
-                img3=cv2.resize(img2,(128,128))
+                img3=cv2.resize(img2,(227,227))
                 img3=img3/255.0
 
                 batch.append(img3)
@@ -31,7 +31,7 @@ class SignWordEdu(SignWord):
             net.predict(batch,False)
 
             for s in range(len(batch)):
-                feat = net.blobs['ip1'].data[s].flatten().tolist()
+                feat = net.blobs['fc7'].data[s].flatten().tolist()
                 self.dict[index[s]].standardhand=feat
         elif self.bothseparate==1:
             batch=[]
@@ -46,7 +46,7 @@ class SignWordEdu(SignWord):
                         img2=cv2.copyMakeBorder(img, 0,0, int(abs(sp[0]-sp[1])/2),int(abs(sp[0]-sp[1])/2), cv2.BORDER_CONSTANT, value=(0, 0, 0, 0))
                     else:
                         img2=cv2.copyMakeBorder(img, int(abs(sp[0]-sp[1])/2),int(abs(sp[0]-sp[1])/2),0,0, cv2.BORDER_CONSTANT, value=(0, 0, 0, 0))
-                    img3=cv2.resize(img2,(128,128))
+                    img3=cv2.resize(img2,(227,227))
                     img3=img3/255.0
 
                     batch.append(img3)
@@ -62,7 +62,7 @@ class SignWordEdu(SignWord):
                         img2=cv2.copyMakeBorder(img, 0,0, int(abs(sp[0]-sp[1])/2),int(abs(sp[0]-sp[1])/2), cv2.BORDER_CONSTANT, value=(0, 0, 0, 0))
                     else:
                         img2=cv2.copyMakeBorder(img, int(abs(sp[0]-sp[1])/2),int(abs(sp[0]-sp[1])/2),0,0, cv2.BORDER_CONSTANT, value=(0, 0, 0, 0))
-                    img3=cv2.resize(img2,(128,128))
+                    img3=cv2.resize(img2,(227,227))
                     img3=img3/255.0
 
                     batch.append(img3)
@@ -71,10 +71,10 @@ class SignWordEdu(SignWord):
             net.predict(batch,False)
 
             for s in range(lenr):
-                feat = net.blobs['ip1'].data[s].flatten().tolist()
+                feat = net.blobs['fc7'].data[s].flatten().tolist()
                 self.dict[index[s]].standardhand=feat
             for s in range(lenr,len(batch)):
-                feat = net.blobs['ip1'].data[s].flatten().tolist()
+                feat = net.blobs['fc7'].data[s].flatten().tolist()
                 self.dict[index[s]].standardlefthand=feat
 
         elif self.intersect==1:
@@ -83,14 +83,14 @@ class SignWordEdu(SignWord):
             for i in inter:
                 if len(glob.glob(self.path+"/handshape/"+str(i)+"_*_C*.jpg"))==0:
                     continue
-                img=cv2.imread(glob.glob(path+"/handshape/"+str(i)+"_*_C*.jpg")[0])
+                img=cv2.imread(glob.glob(self.path+"/handshape/"+str(i)+"_*_C*.jpg")[0])
                 if img!=None:
                     sp=img.shape
                     if sp[0]>sp[1]:
                         img2=cv2.copyMakeBorder(img, 0,0, int(abs(sp[0]-sp[1])/2),int(abs(sp[0]-sp[1])/2), cv2.BORDER_CONSTANT, value=(0, 0, 0, 0))
                     else:
                         img2=cv2.copyMakeBorder(img, int(abs(sp[0]-sp[1])/2),int(abs(sp[0]-sp[1])/2),0,0, cv2.BORDER_CONSTANT, value=(0, 0, 0, 0))
-                    img3=cv2.resize(img2,(128,128))
+                    img3=cv2.resize(img2,(227,227))
                     img3=img3/255.0
 
                     batch.append(img3)
@@ -99,7 +99,7 @@ class SignWordEdu(SignWord):
 
             net2.predict(batch,False)
             for s in range(lenr):
-                feat = net2.blobs['ip1'].data[s].flatten().tolist()
+                feat = net2.blobs['fc7'].data[s].flatten().tolist()
                 self.dict[index[s]].standardhand=feat
 
             batch=[]
@@ -114,7 +114,7 @@ class SignWordEdu(SignWord):
                         img2=cv2.copyMakeBorder(img, 0,0, int(abs(sp[0]-sp[1])/2),int(abs(sp[0]-sp[1])/2), cv2.BORDER_CONSTANT, value=(0, 0, 0, 0))
                     else:
                         img2=cv2.copyMakeBorder(img, int(abs(sp[0]-sp[1])/2),int(abs(sp[0]-sp[1])/2),0,0, cv2.BORDER_CONSTANT, value=(0, 0, 0, 0))
-                    img3=cv2.resize(img2,(128,128))
+                    img3=cv2.resize(img2,(227,227))
                     img3=img3/255.0
 
                     batch.append(img3)
@@ -130,7 +130,7 @@ class SignWordEdu(SignWord):
                         img2=cv2.copyMakeBorder(img, 0,0, int(abs(sp[0]-sp[1])/2),int(abs(sp[0]-sp[1])/2), cv2.BORDER_CONSTANT, value=(0, 0, 0, 0))
                     else:
                         img2=cv2.copyMakeBorder(img, int(abs(sp[0]-sp[1])/2),int(abs(sp[0]-sp[1])/2),0,0, cv2.BORDER_CONSTANT, value=(0, 0, 0, 0))
-                    img3=cv2.resize(img2,(128,128))
+                    img3=cv2.resize(img2,(227,227))
                     img3=img3/255.0
 
                     batch.append(img3)
@@ -140,10 +140,10 @@ class SignWordEdu(SignWord):
                 net.predict(batch,False)
 
                 for s in range(lenr):
-                    feat = net.blobs['ip1'].data[s].flatten().tolist()
+                    feat = net.blobs['fc7'].data[s].flatten().tolist()
                     self.dict[index[s]].standardhand=feat
                 for s in range(lenr,len(batch)):
-                    feat = net.blobs['ip1'].data[s].flatten().tolist()
+                    feat = net.blobs['fc7'].data[s].flatten().tolist()
                     self.dict[index[s]].standardlefthand=feat
         self.steps=[self.topIndex[0]]
         lastframe=self.dict[self.topIndex[0]]
@@ -223,10 +223,11 @@ class EduClassifier(Classifier):
         with open('EducationFy.json', 'wb') as handle:
           json.dump(self.fydic, handle)
 if __name__ == '__main__':
-    caffedl=caffeDL('../../proto/lenet_test.prototxt','../../model/lenet_iter_5000.caffemodel')
-    #caffedl=caffeDL('/home/lzz/caffe/caffe-master/proto/lenet_test.prototxt','/home/lzz/sign/200d/lenet_iter_1800.caffemodel')
-    caffedlInter=caffeDL('../../proto_inter/lenet_test.prototxt','../../model/lenet__iter_400.caffemodel')
-    #caffedlInter=caffeDL('/home/lzz/sign/project/proto_inter/lenet_test.prototxt','/home/lzz/sign/project/model/inter_2/lenet__iter_300.caffemodel')
+    #caffedl=caffeDL('../../proto/lenet_test.prototxt','../../model/lenet_iter_5000.caffemodel')
+    #caffedlInter=caffeDL('../../proto_inter/lenet_test.prototxt','../../model/lenet__iter_400.caffemodel')
+    caffedl=caffeDL('/home/lzz/caffe/caffe-master/examples/imagenet/train_val_16_py.prototxt','/home/lzz/caffe/caffe-master/examples/imagenet/model/4096_iter_10000.caffemodel')
+    caffedlInter=caffeDL('/home/lzz/caffe/caffe-master/examples/imagenet/train_val_16_py.prototxt','/home/lzz/caffe/caffe-master/examples/imagenet/intermodel/24inter_iter_300.caffemodel')
+
     classifier = EduClassifier()
 
     dataset='our'
@@ -250,7 +251,8 @@ if __name__ == '__main__':
         #classifier.splitdevisign(trainname,testname,'P01',1)
     elif dataset=='our':
         #pathTotal='../../data/'
-        pathTotal='/media/lzz/Data1/kinect/'
+        pathTotal='/media/lzz/HD1/kinecttry/'
+        #pathTotal='/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/data/'
         #pathTotal='/media/lzz/Data1/kinect/similardata/'
         #pathTotal='/media/lzz/HD1/newkinect/'
         trainname['hfy']=0
@@ -265,8 +267,8 @@ if __name__ == '__main__':
         #classifier.split(trainname,testname,'lzz',1)
         dic={}
         dic['Aaron']=0
-        dic['Michael']=0
-        dic['Micheal']=0
+        #dic['Michael']=0
+        #dic['Micheal']=0
         classifier.listFileEdu(pathTotal,dic)
 
     mode=2

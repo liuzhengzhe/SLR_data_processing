@@ -4,13 +4,13 @@ from numpy import *
 if __name__ == '__main__':
 
 
-    crossp="/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/handshapes/inter/"
+    crossp="/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/"
 
 
-    f1=open(crossp+"train.txt","r")
-    f2=open(crossp+"test.txt","r")
-    train=open(crossp+"trainnew.txt","w")
-    test=open(crossp+"testnew.txt","w")
+    f1=open(crossp+"traininteram","r")
+    f2=open(crossp+"testinteram","r")
+    train=open(crossp+"traininteram.txt","w")
+    test=open(crossp+"testinteram.txt","w")
     datatrain=f1.readlines()
     datatest=f2.readlines()
     pro=crossp

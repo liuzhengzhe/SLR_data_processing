@@ -6,11 +6,14 @@ from skimage.feature import hog
 from svmmodule import *
 import random
 import h5py
+import json
 from SignWord import *
 class Classifier():
     def __init__(self):
         self.batch_size=200
         self.namepool={}
+        self.namepoolBoth={}
+        self.namepoolInter={}
         self.index2name={}
         self.label=[]
         self.data=[]
@@ -97,17 +100,105 @@ class Classifier():
 
     def constructLabelData(self):
         wordNo=-1
+        wordNoboth=-1
+        wordNointer=-1
+        self.label2Namesingle={}
+        self.label2Nameboth={}
+        self.label2Nameintersect={}
         for path in self.filelist:
-            word_name=self.dic[path].wordName
-            if not self.namepool.has_key(word_name):
-                word=wordNo+1
-                wordNo+=1
-                self.namepool[word_name]=word
-                self.index2name[path]=self.dic[path].sampleName
-            else:
-                word=self.namepool[word_name]
-                self.index2name[path]=self.dic[path].sampleName
-            self.dic[path].label=word
+            if self.dic[path].bothseparate==0 and self.dic[path].intersect==0:
+                word_name=self.dic[path].wordName
+                if not self.namepool.has_key(word_name):
+                    word=wordNo+1
+                    wordNo+=1
+                    self.namepool[word_name]=word
+                    self.index2name[path]=self.dic[path].sampleName
+                else:
+                    word=self.namepool[word_name]
+                    self.index2name[path]=self.dic[path].sampleName
+                self.dic[path].label=word
+                self.label2Namesingle[self.dic[path].label]=self.dic[path].wordName
+            if self.dic[path].bothseparate==1:
+                word_name=self.dic[path].wordName
+                if not self.namepoolBoth.has_key(word_name):
+                    wordboth=wordNoboth+1
+                    wordNoboth+=1
+                    self.namepoolBoth[word_name]=wordboth
+                    self.index2name[path]=self.dic[path].sampleName
+                else:
+                    wordboth=self.namepoolBoth[word_name]
+                    self.index2name[path]=self.dic[path].sampleName
+                self.dic[path].label=wordboth
+                self.label2Nameboth[self.dic[path].label]=self.dic[path].wordName
+            if self.dic[path].intersect==1:
+                word_name=self.dic[path].wordName
+                if not self.namepoolInter.has_key(word_name):
+                    wordinter=wordNointer+1
+                    wordNointer+=1
+                    self.namepoolInter[word_name]=wordinter
+                    self.index2name[path]=self.dic[path].sampleName
+                else:
+                    wordinter=self.namepoolInter[word_name]
+                    self.index2name[path]=self.dic[path].sampleName
+                self.dic[path].label=wordinter
+                self.label2Nameintersect[self.dic[path].label]=self.dic[path].wordName
+
+        name2labelSingle={}
+        name2labelBoth={}
+        name2labelInter={}
+        for wordname in self.label2Namesingle.keys():
+            name2labelSingle[self.label2Namesingle[wordname]]=wordname
+        for wordname in self.label2Nameboth.keys():
+            name2labelBoth[self.label2Nameboth[wordname]]=wordname
+        for wordname in self.label2Nameintersect.keys():
+            name2labelInter[self.label2Nameintersect[wordname]]=wordname
+
+        import json
+        with open('/home/lzz/single.json', 'wb') as handle:
+          json.dump(name2labelSingle, handle)
+        with open('/home/lzz/both.json', 'wb') as handle:
+          json.dump(name2labelBoth, handle)
+        with open('/home/lzz/inter.json', 'wb') as handle:
+          json.dump(name2labelInter, handle)
+
+
+        f=open('/home/lzz/maxlabel.txt','w')
+        f.write(str(wordNo+1)+' '+str(wordNoboth+1)+' '+str(wordNointer+1))
+        f.close()
+    def constructLabelDatafromjson(self):
+        import json
+        with open('/home/lzz/single.json', 'r') as handle:
+          name2labelSingle=json.load(handle)
+        with open('/home/lzz/both.json', 'r') as handle:
+          name2labelBoth=json.load(handle)
+        with open('/home/lzz/inter.json', 'r') as handle:
+          name2labelInter=json.load(handle)
+        wordNo=-1
+        wordNoboth=-1
+        wordNointer=-1
+        self.label2Namesingle={}
+        self.label2Nameboth={}
+        self.label2Nameintersect={}
+        for path in self.filelist:
+            if self.dic[path].bothseparate==0 and self.dic[path].intersect==0:
+                if name2labelSingle.has_key(self.dic[path].wordName):
+                    self.dic[path].label=name2labelSingle[self.dic[path].wordName]
+            if self.dic[path].bothseparate==1:
+                if name2labelBoth.has_key(self.dic[path].wordName):
+                    self.dic[path].label=name2labelBoth[self.dic[path].wordName]
+            if self.dic[path].intersect==1:
+                if name2labelInter.has_key(self.dic[path].wordName):
+                    self.dic[path].label=name2labelInter[self.dic[path].wordName]
+
+
+
+
+
+        f=open('/home/lzz/maxlabel.txt','w')
+        f.write(str(wordNo+1)+' '+str(wordNoboth+1)+' '+str(wordNointer+1))
+        f.close()
+
+
 
     def loadfeature(self,w1,w2,w3):
         for path in self.filelist:
@@ -180,14 +271,13 @@ class Classifier():
                     else:
                         img2=cv2.copyMakeBorder(img, int(abs(sp[0]-sp[1])/2),int(abs(sp[0]-sp[1])/2),0,0, cv2.BORDER_CONSTANT, value=(0, 0, 0, 0))
                     img3=cv2.resize(img2,(227,227))
-
+                    #img3=cv2.resize(img2,(128,128))
                     #cv2.imwrite('/home/lzz/svm/after/'+str(self.dic[path].topIndex[i])+".jpg",img3)
                     #imgs.append(img3)
                     img3=img3/255.0
 
 
                     if self.dic[path].dict[self.dic[path].topIndex[i]].ftype!='Intersect':
-                        #img3=cv2.resize(img3,(128,128))
                         self.batch.append(img3)
                         imgNo+=1
                     else:
@@ -198,8 +288,8 @@ class Classifier():
                         net.predict(self.batch,False)
                         print str(b)+"finished processing"
                         for s in range(len(self.batch)):
+                            #feat = net.blobs['ip1'].data[s].flatten().tolist()
                             feat = net.blobs['fc7'].data[s].flatten().tolist()
-
                             self.featureTotal.append(feat)
                         del self.batch
                         self.batch=[]
@@ -210,6 +300,7 @@ class Classifier():
                         net2.predict(self.batch2,False)
                         print "inter"+str(bInter)+"finished processing"
                         for s in range(len(self.batch2)):
+                            #feat = net2.blobs['ip1'].data[s].flatten().tolist()
                             feat = net2.blobs['fc7'].data[s].flatten().tolist()
                             self.featureTotal2.append(feat)
                         self.batch2=[]
@@ -224,6 +315,7 @@ class Classifier():
                     #img=cv2.imread(imgname[0])
                     sp=img.shape
                     img2=cv2.copyMakeBorder(img, 0,0, int(abs(sp[0]-sp[1])/2),int(abs(sp[0]-sp[1])/2), cv2.BORDER_CONSTANT, value=(0, 0, 0, 0))
+                    #img3=cv2.resize(img2,(128,128))
                     img3=cv2.resize(img2,(227,227))
                     img3=img3/255.0
                     #imgs.append(img3)
@@ -236,6 +328,7 @@ class Classifier():
                         net.predict(self.batch,False)
                         print str(b)+"finished processing"
                         for s in range(len(self.batch)):
+                            #feat = net.blobs['ip1'].data[s].flatten().tolist()
                             feat = net.blobs['fc7'].data[s].flatten().tolist()
                             self.featureTotal.append(feat)
                             #feat2= net.blobs['prob'].data[s].flatten().tolist()
@@ -266,8 +359,8 @@ class Classifier():
                 net.predict(self.batch,False)
                 print str(b)+"finished processing"
                 for s in range(len(self.batch)):
+                    #feat = net.blobs['ip1'].data[s].flatten().tolist()
                     feat = net.blobs['fc7'].data[s].flatten().tolist()
-                    #print feat
                     self.featureTotal.append(feat)
                     #feat2= net.blobs['prob'].data[s].flatten().tolist()
                     #self.featureTotal2.append(feat2)
@@ -280,8 +373,8 @@ class Classifier():
                 net2.predict(self.batch2,False)
                 print str(bInter)+"finished processing"
                 for s in range(len(self.batch2)):
+                    #feat = net2.blobs['ip1'].data[s].flatten().tolist()
                     feat = net2.blobs['fc7'].data[s].flatten().tolist()
-                    #print feat
                     self.featureTotal2.append(feat)
                     #feat2= net.blobs['prob'].data[s].flatten().tolist()
                     #self.featureTotal2.append(feat2)
@@ -836,7 +929,7 @@ class Classifier():
 
             for i in range (len(testpathlist_s2)):
                 path=testpathlist_s2[i]
-                self.dic[path].pred=self.label2Name[int(pred_labels15[i])]
+                self.dic[path].pred=self.label2Namesingle[int(pred_labels15[i])]
 
 
 
@@ -889,7 +982,7 @@ class Classifier():
             wrong.write(str(acc2)+':\n')
             for i in range (len(testpathlist_both)):
                 path=testpathlist_both[i]
-                self.dic[path].pred=self.label2Name[int(pred_labels2[i])]
+                self.dic[path].pred=self.label2Nameboth[int(pred_labels2[i])]
 
 
 
@@ -947,7 +1040,7 @@ class Classifier():
 
             for i in range (len(testpathlist_inter)):
                 path=testpathlist_inter[i]
-                self.dic[path].pred=self.label2Name[int(pred_labels3[i])]
+                self.dic[path].pred=self.label2Nameintersect[int(pred_labels3[i])]
 
 
             for i in range (len(testpathlist_inter)):
@@ -1376,28 +1469,71 @@ class Classifier():
         ftestboth=open('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/testboth','w')
         ftraininter=open('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/traininter','w')
         ftestinter=open('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/testinter','w')
+        wrong=open('/home/lzz/wront.txt','w')
         for path in self.filelist:
-            if self.dic[path].bothseparate==0 and self.dic[path].intersect==0:
-                if self.dic[path].traintest=='train':
-                    self.dic[path].savehdf5(ftrainsingle)
-                if self.dic[path].traintest=='test':
-                    self.dic[path].savehdf5(ftestsingle)
-            if self.dic[path].bothseparate==1:
-                if self.dic[path].traintest=='train':
-                    self.dic[path].savehdf5(ftrainboth)
-                if self.dic[path].traintest=='test':
-                    self.dic[path].savehdf5(ftestboth)
-            if self.dic[path].intersect==1:
-                if self.dic[path].traintest=='train':
-                    self.dic[path].savehdf5(ftraininter)
-                if self.dic[path].traintest=='test':
-                    self.dic[path].savehdf5(ftestinter)
+            try:
+                if self.dic[path].bothseparate==0 and self.dic[path].intersect==0:
+                    if self.dic[path].traintest=='train':
+                        self.dic[path].savehdf5(ftrainsingle)
+                    if self.dic[path].traintest=='test':
+                        self.dic[path].savehdf5(ftestsingle)
+                if self.dic[path].bothseparate==1:
+                    if self.dic[path].traintest=='train':
+                        self.dic[path].savehdf5(ftrainboth)
+                    if self.dic[path].traintest=='test':
+                        self.dic[path].savehdf5(ftestboth)
+                if self.dic[path].intersect==1:
+                    if self.dic[path].traintest=='train':
+                        self.dic[path].savehdf5(ftraininter)
+                    if self.dic[path].traintest=='test':
+                        self.dic[path].savehdf5(ftestinter)
+            except:
+                wrong.write(path+'\n')
+        wrong.close()
         ftrainboth.close()
         ftraininter.close()
         ftrainsingle.close()
         ftestboth.close()
         ftestinter.close()
         ftestsingle.close()
+
+
+    def savehdf5lzz(self):
+        ftrainsingle=open('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/trainsinglelzz','a')
+        ftestsingle=open('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/testsinglelzz','a')
+        ftrainboth=open('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/trainbothlzz','a')
+        ftestboth=open('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/testbothlzz','a')
+        ftraininter=open('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/traininterlzz','a')
+        ftestinter=open('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/testinterlzz','a')
+        wrong=open('/home/lzz/wront.txt','w')
+        for path in self.filelist:
+            try:
+                if self.dic[path].bothseparate==0 and self.dic[path].intersect==0:
+                    if self.dic[path].traintest=='train':
+                        self.dic[path].savehdf5(ftrainsingle)
+                    if self.dic[path].traintest=='test':
+                        self.dic[path].savehdf5(ftestsingle)
+                if self.dic[path].bothseparate==1:
+                    if self.dic[path].traintest=='train':
+                        self.dic[path].savehdf5(ftrainboth)
+                    if self.dic[path].traintest=='test':
+                        self.dic[path].savehdf5(ftestboth)
+                if self.dic[path].intersect==1:
+                    if self.dic[path].traintest=='train':
+                        self.dic[path].savehdf5(ftraininter)
+                    if self.dic[path].traintest=='test':
+                        self.dic[path].savehdf5(ftestinter)
+            except:
+                wrong.write(path+'\n')
+        wrong.close()
+        ftrainboth.close()
+        ftraininter.close()
+        ftrainsingle.close()
+        ftestboth.close()
+        ftestinter.close()
+        ftestsingle.close()
+
+
 
     def trajehdf5(self):
 
@@ -1530,10 +1666,10 @@ class Classifier():
     def getDifficulty(self):
         diff={}
         num={}
-        f=open('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/project/src/EducationNew.pickle')
-        edudic=pickle.load(f)
+        f=open('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/project/src/EducationNew.json')
+        edudic=json.load(f)
         for path in self.filelist:
-            if self.dic[path].traintest=='train':
+            if self.dic[path].traintest=='test':
                 difficult=self.dic[path].getdiffi(edudic)
                 if diff.has_key(path)==0:
                     diff[path] = []
@@ -1547,10 +1683,12 @@ class Classifier():
         for k in diff.keys():
             for i in range(len(diff[k])):
                 diff[k][i]/=float(num[k])
-        with open('difficulty.pickle', 'wb') as handle:
-          pickle.dump(diff, handle)
+        with open('difficulty.json', 'wb') as handle:
+          json.dump(diff, handle)
 
 
     def enlarge(self,f):
         for path in self.filelist:
             self.dic[path].enlarge(f)
+
+

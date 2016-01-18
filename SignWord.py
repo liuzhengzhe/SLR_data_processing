@@ -234,7 +234,7 @@ class SignWord():
                     #rightimg=cv2.imread(interset[0])
                 elif leftset!=[] and rightset!=[]:
                     ftype='Both'
-                    #leftimg=cv2.imread(leftset[0])
+                    leftimg=cv2.imread(leftset[0])
                     #rightimg=cv2.imread(rightset[0])
                 elif leftset==[] and rightset!=[]:
                     ftype='Right'
@@ -1138,11 +1138,15 @@ class SignWord():
 
 
     def modifyKeySign(self):
+        #print self.path
         formerimp=glob.glob(self.path+"/handshape/"+"*_*_C"+"#.jpg")
+        self.handshapes=[]
         for imp in formerimp:
             os.rename(imp,imp[:-5]+".jpg")
         for i in range(len(self.topIndex)):
-            newimp=glob.glob(self.path+"/handshape/"+str(self.topIndex[i])+"_*_C"+".jpg")
+            #print self.topIndex,i
+            newimp=glob.glob(self.path+"/handshape/"+str(self.topIndex[i])+"_*_C*"+".jpg")
+            self.handshapes.append(cv2.resize(cv2.imread(newimp[0]),(227,227)))
             if newimp==[]:
                 continue
             oldname=newimp[0]
@@ -1205,7 +1209,33 @@ class SignWord():
                 self.top[ind]=self.dict[self.indexList[i]].value
                 self.topIndex[ind]=self.indexList[i]
         flag=0
+        inter=0
+        single=0
         if self.intersect==1:
+            '''for t in self.topIndex:
+                if self.dict[t].ftype=='Intersect':
+                    inter+=1
+                else:
+                    single+=1
+            if inter<single:
+                intersect=[]
+                for i in self.framelist:
+                    if self.dict[i].ftype=='Intersect':
+                        intersect.append(i)
+                num=0
+                for t in range(len(self.topIndex)):
+                    f=self.topIndex[t]
+                    if self.dict[f].ftype!='Intersect':
+                        if num>=len(intersect):
+                            num=len(intersect)-1
+                        self.topIndex[t]=intersect[num]
+                        inter+=1
+                        single-=1
+                        num+=1
+                    if inter>=single:
+                        break'''
+
+
             for t in self.topIndex:
                 if self.dict[t].ftype=='Intersect':
                     flag=1
@@ -1368,7 +1398,7 @@ class SignWord():
 
 
     def idvdCaffeFeature(self,img_sum,img_sum_inter,featureTotal,featureTotal2):
-        print self.path
+        #print self.path
         assert self.singlekeyNo+self.interkeyNo==self.keyNo
         feature=[]
         feature2=[]
@@ -1386,7 +1416,7 @@ class SignWord():
             leftfeat = featureTotal[img_sum+i]
             leftfeature.append(leftfeat)
         img_sum+=self.leftkeyNo
-        #self.handshapes=feature
+        self.handshapefeature=feature
         self.handshape=self.pooling(feature,1)
 
         if self.bothseparate==1:
@@ -1595,7 +1625,7 @@ class SignWord():
                 sum0=0
 
                 for j in range(len(feature)):
-                    print j,i,len(feature)
+
                     sum0=sum0+feature[j][i]
                 ave=sum0/len(feature)
                 handshape.append(ave)
@@ -1703,7 +1733,7 @@ class SignWord():
             feature=[]
             #self.combinedFeature=normalize_histogram_abs(self.hogFeature)
             self.combinedFeature=normalize_histogram(self.handshape,w1)+normalize_histogram(self.hogFeature,w2)+normalize_histogram_abs(self.xtrajectory+self.ytrajectory,w3)
-            csvfile = file(self.path+'/feature.csv', 'wb')
+            csvfile = file(self.path+'/featuretry.csv', 'wb')
             writer = csv.writer(csvfile)
             writer.writerow(self.handshape)
             writer.writerow(self.hogFeature)
@@ -1713,7 +1743,7 @@ class SignWord():
         elif self.bothseparate==1:
 
             self.combinedFeature=normalize_histogram(self.handshape,w1)+normalize_histogram(self.hogFeature,w2)+normalize_histogram(self.lefthandshape,w1)+normalize_histogram_abs(self.xtrajectory+self.ytrajectory,w3)+normalize_histogram_abs(self.xlefttrajectory+self.ylefttrajectory,w3)
-            csvfile = file(self.path+'/feature.csv', 'wb')
+            csvfile = file(self.path+'/featuretry.csv', 'wb')
             writer = csv.writer(csvfile)
             writer.writerow(self.handshape)
             writer.writerow(self.lefthandshape)
@@ -1726,7 +1756,7 @@ class SignWord():
             #self.combinedFeature=normalize_histogram(self.handshape)+normalize_histogram(self.lefthandshape)
         elif self.intersect==1:
             self.combinedFeature=normalize_histogram(self.handshape,w1)+normalize_histogram(self.hogFeature,w2)+normalize_histogram_abs(self.xtrajectory+self.ytrajectory,w3)#A+normalize_histogram_abs(self.lefttrajectory)
-            csvfile = file(self.path+'/feature.csv', 'wb')
+            csvfile = file(self.path+'/featuretry.csv', 'wb')
             writer = csv.writer(csvfile)
             writer.writerow(self.handshape)
             writer.writerow(self.hogFeature)
@@ -1748,15 +1778,16 @@ class SignWord():
 
     def getdiffi(self,edudic):
         diffs=[]
-        for i in range(len(edudic[self.wordName])):
-            h1=edudic[self.wordName][i]['handshape']
-            mini=99999
-            for j in range(len(self.topIndex)):
-                h0=self.handshapes[j]
-                dis=spatial.distance.cosine(h0,h1)
-                if mini>dis:
-                    mini=dis
-            diffs.append(mini)
+        if edudic.has_key(self.wordName):
+            for i in range(len(edudic[self.wordName])):
+                h1=edudic[self.wordName][i]['handshape']
+                mini=99999
+                for j in range(len(self.topIndex)):
+                    h0=self.handshapefeature[j]
+                    dis=spatial.distance.cosine(h0,h1)
+                    if mini>dis:
+                        mini=dis
+                diffs.append(mini)
 
         return diffs
     def enlarge(self,f):
@@ -1779,15 +1810,48 @@ class SignWord():
         #    f.write(p+' '+str(self.label)+'\n')
     def savehdf5(self,f):
 
-
-        datas=[]
+        print self.path
+        datas=[[[]]]
         labels=[]
-        datas.append(self.combinedFeature)
-        labels.append(self.label)
+        if self.bothseparate==0 and self.bothseparate==0:
+            datas=np.zeros((1,400,1,1))
+            datas[0,:,0,0]=np.array(self.xtrajectory+self.ytrajectory)
+        elif self.bothseparate==1:
+            datas=np.zeros((1,800,1,1))
+            datas[0,:,0,0]=np.array(self.xtrajectory+self.ytrajectory+self.xlefttrajectory+self.ylefttrajectory)
+        elif self.intersect==1:
+            datas=np.zeros((1,800,1,1))
+            datas[0,:,0,0]=np.array(self.xtrajectory+self.ytrajectory)
+        labels=np.zeros((1))
+
+        labels[0]=self.label
+
+
+
+
+
         datas=np.array(datas).astype(np.float32)*1000.0
-        labels=np.array(labels).astype(np.float32).transpose()
+
+        labels=np.array(labels).astype(np.float32)#.transpose()
+
+
+
+        images=np.zeros((1,30,227,227))
+
+        for i in range(10):
+            t=min(i,len(self.handshapes)-1)
+            print self.handshapes[t].shape
+            images[0,i*3,:,:]=self.handshapes[t][:,:,0]
+            images[0,i*3+1,:,:]=self.handshapes[t][:,:,0]
+            images[0,i*3+2,:,:]=self.handshapes[t][:,:,0]
+            #images[0,i*3:i*3+3,:,:]=self.handshapes[t].reshape(3,227,227)
+
+        images=images.astype(np.float32)
+        cv2.imwrite('/home/lzz/x.jpg',images[0,0,:,:])
+
 
         with h5py.File('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/hdf5/total/'+self.sampleName.replace(' ','+')+'.h5', 'w') as hdf5file:
             hdf5file['data'] = datas
+            hdf5file['image']=  images
             hdf5file['label'] = labels
         f.write('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/hdf5/total/'+self.sampleName.replace(' ','+')+'.h5\n')

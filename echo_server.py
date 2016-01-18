@@ -9,6 +9,7 @@ logging.basicConfig(level=logging.DEBUG,format='%(name)s: %(message)s')
 class EchoServer(asyncore.dispatcher):
     def __init__(self, port, received_data_callback):
         asyncore.dispatcher.__init__(self)
+        self.handlers=[]
         self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
         self.set_reuse_addr()
         self.bind(('', port))
@@ -24,7 +25,8 @@ class EchoServer(asyncore.dispatcher):
         if client_info is not None:
             sock, addr = client_info
             logging.debug('connecting to %s, tid %s', repr(addr), thread.get_ident())
-            self.handler=EchoHandler(client_info[0], self.received_data_callback)
+            self.handlers.append(EchoHandler(client_info[0], self.received_data_callback))
+
 
     def handle_close(self):
         self.close()
