@@ -50,7 +50,7 @@ labelRetval,labelFrame = labelFrameData.readFrame()
 skeletonRetval,skeletonFrame = skeletonFrameData.readFrame()
 if not depthRetval or not colorRetval or not labelRetval or not skeletonRetval:
     exit'''
-path='/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/data/lzz/lzz1-100t3/HKG_001_a_0001 lzz 0_0/'
+path='/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/data/lzz/lzz1-100/lzz1-100t3/HKG_001_a_0001 lzz 0_0/'
 
 with open(path+'handshape/8556_Right_C.jpg', "rb") as imageFile:
   img = imageFile.read()

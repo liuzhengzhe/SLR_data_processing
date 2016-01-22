@@ -1116,14 +1116,18 @@ class SignWord():
             if self.leftindexList==[]:
                 for frameno in self.framelist:
                     self.indexList.append(frameno)
-            if(len(self.leftindexList)<self.leftkeyNo):
-                self.leftkeyNo=len(self.leftindexList)
+            #if(len(self.leftindexList)<self.leftkeyNo):
+            #    self.leftkeyNo=len(self.leftindexList)
 
         elif self.intersect==1:
+            self.indexList2=[]
             for f in self.framelist:
+                '''if self.dict[f].ftype=='Intersect':
+                    self.indexList.append(self.dict[f].num)
+                elif self.dict[f].ftype=='Both':
+                    self.indexList2.append(self.dict[f].num)'''
                 if self.dict[f].ftype=='Intersect' or self.dict[f].ftype=='Both':
                     self.indexList.append(self.dict[f].num)
-
         if self.indexList==[]:
             for frameno in self.framelist:
                 if self.dict[frameno].ftype=='None':
@@ -1132,17 +1136,21 @@ class SignWord():
 
 
 
-        if(len(self.indexList)<self.keyNo):
-            self.keyNo=len(self.indexList)
+        #if(len(self.indexList)<self.keyNo):
+        #    self.keyNo=len(self.indexList)
 
 
 
     def modifyKeySign(self):
-        #print self.path
-        formerimp=glob.glob(self.path+"/handshape/"+"*_*_C"+"#.jpg")
+        print self.path
+        formerimp=glob.glob(self.path+"/handshape/"+"*_*_C"+"*#.jpg")
         self.handshapes=[]
+        if self.bothseparate==1:
+            self.lefthandshapes=[]
         for imp in formerimp:
-            os.rename(imp,imp[:-5]+".jpg")
+            imp2=imp.replace('#','')
+            os.rename(imp,imp2)
+        #assert len(self.topIndex)==10
         for i in range(len(self.topIndex)):
             #print self.topIndex,i
             newimp=glob.glob(self.path+"/handshape/"+str(self.topIndex[i])+"_*_C*"+".jpg")
@@ -1155,12 +1163,13 @@ class SignWord():
         if self.bothseparate==1:
             formerimp=glob.glob(self.path+"/handshape/left/"+"*_*_C"+"#.jpg")
             for imp in formerimp:
-                os.rename(imp,imp[:-5]+".jpg")
+                imp2=imp.replace('#','')
+                os.rename(imp,imp2)
 
             for i in range(len(self.lefttopIndex)):
 
-                newimp=glob.glob(self.path+"/handshape/left/"+str(self.lefttopIndex[i])+"_*_C"+".jpg")
-
+                newimp=glob.glob(self.path+"/handshape/left/"+str(self.lefttopIndex[i])+"_*_C*"+".jpg")
+                self.lefthandshapes.append(cv2.resize(cv2.imread(newimp[0]),(227,227)))
                 oldname=newimp[0]
                 os.rename(oldname,oldname[:-4]+"#.jpg")
     def modifyKeySign2(self):
@@ -1193,49 +1202,72 @@ class SignWord():
 
     def findTopHandshape(self):
         print self.path
-        self.top=[]
-        self.topIndex=[]
-        #print self.value
-        for i in range(self.keyNo):
-            self.top.append(self.dict[self.indexList[i]].value)
-            self.topIndex.append(self.indexList[i])
-        #top5Index=[indexList[0],indexList[1],indexList[2],indexList[3],indexList[4]]
-        for i in range(self.keyNo,len(self.indexList)):
-            if(self.dict[self.indexList[i]].value>min(self.top)):
-                if self.indexList[i] in self.topIndex:
-                    continue
-                ind=self.top.index(min(self.top))
 
-                self.top[ind]=self.dict[self.indexList[i]].value
-                self.topIndex[ind]=self.indexList[i]
-        flag=0
-        inter=0
-        single=0
-        if self.intersect==1:
-            '''for t in self.topIndex:
-                if self.dict[t].ftype=='Intersect':
-                    inter+=1
-                else:
-                    single+=1
-            if inter<single:
-                intersect=[]
-                for i in self.framelist:
-                    if self.dict[i].ftype=='Intersect':
-                        intersect.append(i)
-                num=0
-                for t in range(len(self.topIndex)):
-                    f=self.topIndex[t]
-                    if self.dict[f].ftype!='Intersect':
-                        if num>=len(intersect):
-                            num=len(intersect)-1
-                        self.topIndex[t]=intersect[num]
-                        inter+=1
-                        single-=1
-                        num+=1
-                    if inter>=single:
-                        break'''
+        if self.bothseparate==0 and self.intersect==0:
+            self.top=[]
+            self.topIndex=[]
+            for i in range(len(self.indexList)):
+                self.top.append(self.dict[self.indexList[i]].value)
 
 
+            order=[i[0] for i in sorted(enumerate(self.top), key=lambda x:x[1])]
+            order=order[::-1]
+            for i in range(len(order)):
+                self.topIndex.append(self.indexList[order[i]])
+            for i in range(len(order),self.keyNo):
+                self.topIndex.append(self.indexList[order[0]])
+            if len(self.topIndex)>self.keyNo:
+                self.topIndex=self.topIndex[:self.keyNo]
+
+
+        elif self.bothseparate==1:
+            #right
+            self.top=[]
+            self.topIndex=[]
+            for i in range(len(self.indexList)):
+                self.top.append(self.dict[self.indexList[i]].value)
+            order=[i[0] for i in sorted(enumerate(self.top), key=lambda x:x[1])]
+            order=order[::-1]
+            for i in range(len(order)):
+                self.topIndex.append(self.indexList[order[i]])
+            for i in range(len(order),self.keyNo):
+                self.topIndex.append(self.indexList[order[0]])
+            if len(self.topIndex)>self.keyNo:
+                self.topIndex=self.topIndex[:self.keyNo]
+            #left
+            self.lefttop=[]
+            self.lefttopIndex=[]
+            for i in range(len(self.leftindexList)):
+                self.lefttop.append(self.dict[self.leftindexList[i]].leftvalue)
+            leftorder=[i[0] for i in sorted(enumerate(self.lefttop), key=lambda x:x[1])]
+            leftorder=leftorder[::-1]
+            for i in range(len(leftorder)):
+                self.lefttopIndex.append(self.leftindexList[leftorder[i]])
+            for i in range(len(leftorder),self.leftkeyNo):
+                self.lefttopIndex.append(self.leftindexList[leftorder[0]])
+            if len(self.lefttopIndex)>self.keyNo:
+                self.lefttopIndex=self.lefttopIndex[:self.leftkeyNo]
+        elif self.intersect==1:
+            flag=0
+            self.topinter=[]
+            self.topinterIndex=[]
+            self.topsingle=[]
+            self.topsingleIndex=[]
+            for i in range(len(self.indexList)):
+                self.topinter.append(self.dict[self.indexList[i]].value)
+            #for i in range(len(self.indexList2)):
+            #    self.topsingle.append(self.dict[self.indexList2[i]].value)
+            orderinter=[i[0] for i in sorted(enumerate(self.topinter), key=lambda x:x[1])]
+            orderinter=orderinter[::-1]
+            ordersingle=[i[0] for i in sorted(enumerate(self.topsingle), key=lambda x:x[1])]
+            ordersingle=ordersingle[::-1]
+            for i in range(10):
+                self.topinterIndex.append(self.indexList[orderinter[min(i,len(orderinter)-1)]])
+            #for i in range(2):
+            #    self.topsingleIndex.append(self.indexList2[ordersingle[min(i,len(ordersingle)-1)]])
+            self.topIndex=self.topinterIndex+self.topsingleIndex
+            if len(self.topIndex)>self.keyNo:
+                self.topIndex=self.topIndex[:self.keyNo]
             for t in self.topIndex:
                 if self.dict[t].ftype=='Intersect':
                     flag=1
@@ -1246,7 +1278,6 @@ class SignWord():
                         self.keyNo+=1
                         self.topIndex.append(f)
                         break
-        self.topIndex.sort()
 
         self.singlekeyNo=0
         self.interkeyNo=0
@@ -1256,6 +1287,58 @@ class SignWord():
                 self.singlekeyNo+=1
             else:
                 self.interkeyNo+=1
+        self.topIndex.sort()
+
+
+        assert len(self.topIndex)==self.keyNo
+
+
+
+        #IF INTERSECT<5, add up to 5
+        '''for t in self.topIndex:
+            if self.dict[t].ftype=='Intersect':
+                inter+=1
+            else:
+                single+=1
+        if inter<single:
+            intersect=[]
+            for i in self.framelist:
+                if self.dict[i].ftype=='Intersect':
+                    intersect.append(i)
+            num=0
+            for t in range(len(self.topIndex)):
+                f=self.topIndex[t]
+                if self.dict[f].ftype!='Intersect':
+                    if num>=len(intersect):
+                        num=len(intersect)-1
+                    self.topIndex[t]=intersect[num]
+                    inter+=1
+                    single-=1
+                    num+=1
+                if inter>=single:
+                    break'''
+
+        #if intersect=0, add to 1
+        '''for t in self.topIndex:
+            if self.dict[t].ftype=='Intersect':
+                flag=1
+                break
+        if flag==0:
+            for f in self.framelist:
+                if self.dict[f].ftype=='Intersect':
+                    self.keyNo+=1
+                    self.topIndex.append(f)
+                    break'''
+    '''self.topIndex.sort()
+
+    self.singlekeyNo=0
+    self.interkeyNo=0
+
+    for i in range(len(self.topIndex)):
+        if self.dict[self.topIndex[i]].ftype!='Intersect':
+            self.singlekeyNo+=1
+        else:
+            self.interkeyNo+=1
 
 
 
@@ -1284,7 +1367,7 @@ class SignWord():
 
                     self.lefttop[ind]=self.dict[self.leftindexList[i]].leftvalue
                     self.lefttopIndex[ind]=self.leftindexList[i]
-            self.lefttopIndex.sort()
+            self.lefttopIndex.sort()'''
 
 
 
@@ -1834,20 +1917,32 @@ class SignWord():
 
         labels=np.array(labels).astype(np.float32)#.transpose()
 
+        if self.bothseparate==0:
+            #right
+            images=np.zeros((1,30,227,227))
+            for i in range(10):
+                t=min(i,len(self.handshapes)-1)
+                images[0,i*3,:,:]=self.handshapes[t][:,:,0]
+                images[0,i*3+1,:,:]=self.handshapes[t][:,:,0]
+                images[0,i*3+2,:,:]=self.handshapes[t][:,:,0]
+            images=images.astype(np.float32)
 
+        if self.bothseparate==1:
+            #left
+            images=np.zeros((1,60,227,227))
+            for i in range(10):
+                t=min(i,len(self.handshapes)-1)
+                images[0,i*3,:,:]=self.handshapes[t][:,:,0]
+                images[0,i*3+1,:,:]=self.handshapes[t][:,:,0]
+                images[0,i*3+2,:,:]=self.handshapes[t][:,:,0]
+            images=images.astype(np.float32)
+            for i in range(10,20):
+                t=min(i,len(self.lefthandshapes)-1)
+                images[0,i*3,:,:]=self.lefthandshapes[t][:,:,0]
+                images[0,i*3+1,:,:]=self.lefthandshapes[t][:,:,0]
+                images[0,i*3+2,:,:]=self.lefthandshapes[t][:,:,0]
+            images=images.astype(np.float32)
 
-        images=np.zeros((1,30,227,227))
-
-        for i in range(10):
-            t=min(i,len(self.handshapes)-1)
-            print self.handshapes[t].shape
-            images[0,i*3,:,:]=self.handshapes[t][:,:,0]
-            images[0,i*3+1,:,:]=self.handshapes[t][:,:,0]
-            images[0,i*3+2,:,:]=self.handshapes[t][:,:,0]
-            #images[0,i*3:i*3+3,:,:]=self.handshapes[t].reshape(3,227,227)
-
-        images=images.astype(np.float32)
-        cv2.imwrite('/home/lzz/x.jpg',images[0,0,:,:])
 
 
         with h5py.File('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/hdf5/total/'+self.sampleName.replace(' ','+')+'.h5', 'w') as hdf5file:

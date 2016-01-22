@@ -226,7 +226,7 @@ if __name__ == '__main__':
     #caffedl=caffeDL('../../proto/lenet_test.prototxt','../../model/lenet_iter_5000.caffemodel')
     #caffedlInter=caffeDL('../../proto_inter/lenet_test.prototxt','../../model/lenet__iter_400.caffemodel')
     caffedl=caffeDL('/home/lzz/caffe/caffe-master/examples/imagenet/train_val_16_py.prototxt','/home/lzz/caffe/caffe-master/examples/imagenet/model/4096_iter_10000.caffemodel')
-    caffedlInter=caffeDL('/home/lzz/caffe/caffe-master/examples/imagenet/train_val_16_py.prototxt','/home/lzz/caffe/caffe-master/examples/imagenet/intermodel/24inter_iter_300.caffemodel')
+    caffedlInter=caffeDL('/home/lzz/caffe/caffe-master/examples/imagenet/train_val_16_py.prototxt','/home/lzz/caffe/caffe-master/examples/imagenet/model/4096_iter_10000.caffemodel')
 
     classifier = EduClassifier()
 
@@ -251,8 +251,8 @@ if __name__ == '__main__':
         #classifier.splitdevisign(trainname,testname,'P01',1)
     elif dataset=='our':
         #pathTotal='../../data/'
-        pathTotal='/media/lzz/HD1/kinecttry/'
-        #pathTotal='/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/data/'
+        #pathTotal='/media/lzz/HD1/kinecttry/'
+        pathTotal='/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/data/'
         #pathTotal='/media/lzz/Data1/kinect/similardata/'
         #pathTotal='/media/lzz/HD1/newkinect/'
         trainname['hfy']=0

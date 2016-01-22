@@ -26,7 +26,8 @@ if __name__ == '__main__':
     #caffedlInter=caffeDL('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_inter/lenet_test.prototxt','/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/model/lenet__iter_400.caffemodel')
     #imagenet
     caffedl=caffeDL('/home/lzz/caffe/caffe-master/examples/imagenet/train_val_16_py.prototxt','/home/lzz/caffe/caffe-master/examples/imagenet/model/4096_iter_10000.caffemodel')
-    caffedlInter=caffeDL('/home/lzz/caffe/caffe-master/examples/imagenet/train_val_16_py.prototxt','/home/lzz/caffe/caffe-master/examples/imagenet/intermodel/24inter_iter_300.caffemodel')
+    caffedlInter=caffeDL('/home/lzz/caffe/caffe-master/examples/imagenet/train_val_16_py.prototxt','/home/lzz/caffe/caffe-master/examples/imagenet/model/4096_iter_10000.caffemodel')
+    #caffedlInter=caffeDL('/home/lzz/caffe/caffe-master/examples/imagenet/train_val_16_py.prototxt','/home/lzz/caffe/caffe-master/examples/imagenet/intermodel/24inter_iter_300.caffemodel')
     #total
     #caffedl=caffeDL('/home/lzz/caffe/caffe-master/examples/imagenet/train_val_16_py.prototxt','/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_total/total_iter_30000.caffemodel')
     #caffedlInter=caffeDL('/home/lzz/caffe/caffe-master/examples/imagenet/train_val_16_py.prototxt','/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_total/total_iter_30000.caffemodel')
@@ -68,9 +69,9 @@ if __name__ == '__main__':
         #classifier.splitdevisign(trainname,testname,'P01',1)
     elif dataset=='our':
         #pathTotal='/media/lzz/HD1/kinecttry/'
-        pathTotal='/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/data/lzz/lzz1-100t4/'
+        pathTotal='/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/data/lzz/lzz/'
         trainname['lzz']=0
-        testname['Aaron']=0
+        #testname['Aaron']=0
         #testname['Michael']=0
         #testname['Micheal']=0
         #classifier.listFile(pathTotal)
@@ -109,6 +110,7 @@ if __name__ == '__main__':
         classifier.getInter()
 
     classifier.constructLabelDatafromjson()
+    #exit(0)
 
 
 
@@ -160,12 +162,12 @@ if __name__ == '__main__':
     #if wholeMode==2:
     #    classifier.makeXml()
 
-
+    print 'signing key'
     classifier.signkey()
     w1=1
     w2=1
     w3=1
-    #classifier.getDifficulty()
+    classifier.getDifficulty()
     #classifier.combineFeature(w1,w2,w3)
     '''
     w1=1
@@ -183,6 +185,7 @@ if __name__ == '__main__':
         classifier.trajehdf5()
     except:
         pass'''
+    print 'saving...'
     #classifier.savehdf5()
     #classifier.savehdf5lzz()
     #classifier.loadfeature(w1,w2,w3)

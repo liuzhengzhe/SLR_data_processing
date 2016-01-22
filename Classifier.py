@@ -509,7 +509,7 @@ class Classifier():
                         filelistnew.append(path)
                     else:
                         del self.dic[path]
-                else:
+                '''else:
 
                     self.dic[path]=SignWord(path,0)
                     f=self.dic[path].loadData()
@@ -518,7 +518,7 @@ class Classifier():
                         filelistnew.append(path)
                         trainSet.add(path)
                     else:
-                        del self.dic[path]
+                        del self.dic[path]'''
         return filelistnew,trainSet,testSet
     def splitxn(self,name):
         trainSet=set()
@@ -1509,20 +1509,20 @@ class Classifier():
         for path in self.filelist:
             try:
                 if self.dic[path].bothseparate==0 and self.dic[path].intersect==0:
-                    if self.dic[path].traintest=='train':
+                    #if self.dic[path].traintest=='train':
                         self.dic[path].savehdf5(ftrainsingle)
-                    if self.dic[path].traintest=='test':
-                        self.dic[path].savehdf5(ftestsingle)
+                    #if self.dic[path].traintest=='test':
+                    #    self.dic[path].savehdf5(ftestsingle)
                 if self.dic[path].bothseparate==1:
-                    if self.dic[path].traintest=='train':
+                    #if self.dic[path].traintest=='train':
                         self.dic[path].savehdf5(ftrainboth)
-                    if self.dic[path].traintest=='test':
-                        self.dic[path].savehdf5(ftestboth)
+                    #if self.dic[path].traintest=='test':
+                    #    self.dic[path].savehdf5(ftestboth)
                 if self.dic[path].intersect==1:
-                    if self.dic[path].traintest=='train':
+                    #if self.dic[path].traintest=='train':
                         self.dic[path].savehdf5(ftraininter)
-                    if self.dic[path].traintest=='test':
-                        self.dic[path].savehdf5(ftestinter)
+                    #if self.dic[path].traintest=='test':
+                    #    self.dic[path].savehdf5(ftestinter)
             except:
                 wrong.write(path+'\n')
         wrong.close()
@@ -1534,130 +1534,6 @@ class Classifier():
         ftestsingle.close()
 
 
-
-    def trajehdf5(self):
-
-        ftrain=open('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/trajetrain','w')
-        ftest=open('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/trajetest','w')
-        ftrain.write('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/hdf5/trajetrain.h5')
-        ftest.write('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/hdf5/trajetest.h5')
-
-        datas=[]
-        labels=[]
-        datavalid=[]
-        labelvalid=[]
-        datatest=[]
-        labeltest=[]
-        datas2=[]
-        labels2=[]
-        datavalid2=[]
-        labelvalid2=[]
-        datatest2=[]
-        labeltest2=[]
-        datas3=[]
-        labels3=[]
-        datavalid3=[]
-        labelvalid3=[]
-        datatest3=[]
-        labeltest3=[]
-
-
-
-
-        for path in self.filelist:
-            if self.dic[path].bothseparate==0 and self.dic[path].intersect==0:
-                if self.dic[path].traintest=='train':
-                    if len(self.dic[path].xtrajectory+self.dic[path].ytrajectory)!=400:
-                        print path
-                        continue
-                    if random.random()>0.1:
-                        datas.append(self.dic[path].xtrajectory+self.dic[path].ytrajectory)
-                        labels.append(self.dic[path].label)
-                    else:
-                        datavalid.append(self.dic[path].xtrajectory+self.dic[path].ytrajectory)
-                        labelvalid.append(self.dic[path].label)
-                else:
-                    datatest.append(self.dic[path].xtrajectory+self.dic[path].ytrajectory)
-                    labeltest.append(self.dic[path].label)
-            elif self.dic[path].bothseparate==1:
-                if self.dic[path].traintest=='train':
-                    if len(self.dic[path].xtrajectory+self.dic[path].ytrajectory)!=400:
-                        print path
-                        continue
-                    if random.random()>0.1:
-                        datas2.append(self.dic[path].xtrajectory+self.dic[path].ytrajectory)
-                        labels2.append(self.dic[path].label)
-                    else:
-                        datavalid2.append(self.dic[path].xtrajectory+self.dic[path].ytrajectory)
-                        labelvalid2.append(self.dic[path].label)
-                else:
-                    datatest2.append(self.dic[path].xtrajectory+self.dic[path].ytrajectory)
-                    labeltest2.append(self.dic[path].label)
-            elif self.dic[path].intersect==1:
-                if self.dic[path].traintest=='train':
-                    if len(self.dic[path].xtrajectory+self.dic[path].ytrajectory)!=400:
-                        print path
-                        continue
-                    if random.random()>0.1:
-                        datas3.append(self.dic[path].xtrajectory+self.dic[path].ytrajectory)
-                        labels3.append(self.dic[path].label)
-                    else:
-                        datavalid3.append(self.dic[path].xtrajectory+self.dic[path].ytrajectory)
-                        labelvalid3.append(self.dic[path].label)
-                else:
-                    datatest3.append(self.dic[path].xtrajectory+self.dic[path].ytrajectory)
-                    labeltest3.append(self.dic[path].label)
-        datas=np.array(datas).astype(np.float32)*1000.0
-        datas2=np.array(datas2).astype(np.float32)*1000.0
-        datas3=np.array(datas3).astype(np.float32)*1000.0
-        labels=np.array(labels).astype(np.float32).transpose()
-        labels2=np.array(labels2).astype(np.float32).transpose()
-        labels3=np.array(labels3).astype(np.float32).transpose()
-        datavalid=np.array(datavalid).astype(np.float32)*1000.0
-        datavalid2=np.array(datavalid2).astype(np.float32)*1000.0
-        datavalid3=np.array(datavalid3).astype(np.float32)*1000.0
-        labelvalid=np.array(labelvalid).astype(np.float32).transpose()
-        labelvalid2=np.array(labelvalid2).astype(np.float32).transpose()
-        labelvalid3=np.array(labelvalid3).astype(np.float32).transpose()
-        datatest=np.array(datatest).astype(np.float32)*1000.0
-        datatest2=np.array(datatest2).astype(np.float32)*1000.0
-        datatest3=np.array(datatest3).astype(np.float32)*1000.0
-        labeltest=np.array(labeltest).astype(np.float32).transpose()
-        labeltest2=np.array(labeltest2).astype(np.float32).transpose()
-        labeltest3=np.array(labeltest3).astype(np.float32).transpose()
-        with h5py.File('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/hdf5/trajetrain.h5', 'w') as f:
-            f['data'] = np.asarray(datas)
-            f['label'] = np.asarray(labels)
-        with h5py.File('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/hdf5/trajevalid.h5', 'w') as f:
-            f['data'] = np.asarray(datavalid)
-            f['label'] = np.asarray(labelvalid)
-        with h5py.File('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/hdf5/trajetest.h5', 'w') as f:
-            f['data'] = np.asarray(datatest)
-            f['label'] = np.asarray(labeltest)
-
-
-        with h5py.File('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/hdf5/trajetrainboth.h5', 'w') as f:
-            f['data'] = np.asarray(datas2)
-            f['label'] = np.asarray(labels2)
-        with h5py.File('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/hdf5/trajevalidboth.h5', 'w') as f:
-            f['data'] = np.asarray(datavalid2)
-            f['label'] = np.asarray(labelvalid2)
-        with h5py.File('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/hdf5/trajetestboth.h5', 'w') as f:
-            f['data'] = np.asarray(datatest2)
-            f['label'] = np.asarray(labeltest2)
-
-
-        with h5py.File('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/hdf5/trajetraininter.h5', 'w') as f:
-            f['data'] = np.asarray(datas3)
-            f['label'] = np.asarray(labels3)
-        with h5py.File('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/hdf5/trajevalidinter.h5', 'w') as f:
-            f['data'] = np.asarray(datavalid3)
-            f['label'] = np.asarray(labelvalid3)
-        with h5py.File('/media/lzz/65c50da0-a3a2-4117-8a72-7b37fd81b574/sign/proto_hdf5/hdf5/trajetestinter.h5', 'w') as f:
-            f['data'] = np.asarray(datatest3)
-            f['label'] = np.asarray(labeltest3)
-        fnum=open('./number.txt','w')
-        fnum.write(str(np.amax(labels)))
 
 
 
@@ -1671,20 +1547,22 @@ class Classifier():
         for path in self.filelist:
             if self.dic[path].traintest=='test':
                 difficult=self.dic[path].getdiffi(edudic)
-                if diff.has_key(path)==0:
-                    diff[path] = []
+                if diff.has_key(self.dic[path].wordName)==0:
+                    diff[self.dic[path].wordName] = []
                     for i in range(len(difficult)):
-                        diff[path].append(0)
-                    num[path]=0
+                        diff[self.dic[path].wordName].append(0)
+                    num[self.dic[path].wordName]=0
                 for i in range(len(difficult)):
-                    diff[path][i]+=difficult[i]
-                num[path]+=1
+                    diff[self.dic[path].wordName][i]+=difficult[i]
+                num[self.dic[path].wordName]+=1
 
         for k in diff.keys():
             for i in range(len(diff[k])):
                 diff[k][i]/=float(num[k])
-        with open('difficulty.json', 'wb') as handle:
-          json.dump(diff, handle)
+                edudic[k][i]['diff']=diff[k][i]
+
+        with open('EducationwithDiff.json', 'wb') as handle:
+          json.dump(edudic, handle)
 
 
     def enlarge(self,f):
