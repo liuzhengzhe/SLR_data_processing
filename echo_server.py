@@ -86,7 +86,10 @@ class EchoHandler(asynchat.async_chat):
         # self.received_data_callback(''.join(self.received_data))
         decoded_data = self.converter.decode(''.join(self.received_data))
         if self.state=='edu':
-            self.eduprocessor.process_data(decoded_data)
+            try:
+                self.eduprocessor.process_data(decoded_data)
+            except:
+                pass
         elif self.state=='rec':
             self.recprocessor.process_data(decoded_data)
         #if response!=None:

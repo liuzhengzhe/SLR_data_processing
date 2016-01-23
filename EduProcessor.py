@@ -73,13 +73,13 @@ class EduProcessor():
             self.classifier.reset()
             return '0'
         elif self.mode=='guide':
-            self.cnt+=1
-            if self.cnt==5:
-                self.cnt=0
-                self.queue.put(decoded_data)
-                self.condition.acquire()
-                self.condition.notify()
-                self.condition.release()
+            #self.cnt+=1
+            #if self.cnt==5:
+                #self.cnt=0
+            self.queue.put(decoded_data)
+            self.condition.acquire()
+            self.condition.notify()
+            self.condition.release()
             return '0'
         elif self.mode=='evaluation':
             if(self.queue.full()==0):
@@ -253,7 +253,7 @@ class EduProcessor():
                 #print pos1,pos0
                 print 'pos',np.sqrt((pos1[0]-pos0[0])**2+(pos1[1]-pos0[1])**2)
                 if np.sqrt((pos1[0]-pos0[0])**2+(pos1[1]-pos0[1])**2)<self.p_thres:
-                    postickle=0
+                    postickle=1
                     h0=step['handshape']
                     img=decoded_data['right']
                     if img!=None:
@@ -270,7 +270,7 @@ class EduProcessor():
                         h1 = EduProcessor.caffedlInter.net.blobs['fc7'].data[0].flatten().tolist()
                         print 'origin',h0[:20],h1[:20]
                         print 'hand',  spatial.distance.cosine(h0,h1),step['diff']
-                        if spatial.distance.cosine(h0,h1)<step['diff']+0.1:
+                        if spatial.distance.cosine(h0,h1)<step['diff']+0.2:
                             self.stepno+=1
                             tickle=1
             if postickle==1 and tickle==0:
@@ -344,7 +344,7 @@ class EduProcessor():
                 pos0=step['pos'][4:]
 
                 tickle=0
-
+                gotonext=0
                 if decoded_data['label']==step['type']:
                     if step['type']=='Right':
                         print 'pos',np.sqrt((pos1[0]-pos0[0])**2+(pos1[1]-pos0[1])**2)
@@ -354,25 +354,41 @@ class EduProcessor():
                             validno.append(i)
                             belong[i]=s
                             tickle=1
+                        elif s<len(self.standard)-1 and current>0:
+                            pos2=self.standard[s+1]['pos'][4:]
+                            if np.sqrt((pos1[0]-pos2[0])**2+(pos1[1]-pos2[1])**2)<self.p_thres:
+                                gotonext=1
 
 
                     elif step['type']=='Both':
-                        if np.sqrt((pos1[0]-pos0[0])**2+(pos1[1]-pos0[1])**2)<self.p_thres+0.2 and np.sqrt((pos1[2]-pos0[2])**2+(pos1[3]-pos0[3])**2)<self.p_thres+0.2:
+                        if np.sqrt((pos1[0]-pos0[0])**2+(pos1[1]-pos0[1])**2)<self.p_thres+0.1 and np.sqrt((pos1[2]-pos0[2])**2+(pos1[3]-pos0[3])**2)<self.p_thres+0.1:
                             ticklelist['data'][s]['position']=1
                             validno.append(i)
                             belong[i]=s
                             tickle=1
+                            cnt+=1
+                        elif s<len(self.standard)-1 and current>0:
+                            pos2=self.standard[s+1]['pos'][4:]
+                            if np.sqrt((pos1[0]-pos2[0])**2+(pos1[1]-pos2[1])**2)<self.p_thres and np.sqrt((pos1[2]-pos2[2])**2+(pos1[3]-pos2[3])**2)<self.p_thres+0.1:
+                                gotonext=1
 
                     elif step['type']=='Intersect':
                         if np.sqrt((pos1[0]-pos0[0])**2+(pos1[1]-pos0[1])**2)<self.p_thres:
                             ticklelist['data'][s]['position']=1
                             validno.append(i)
+                            cnt+=1
                             belong[i]=s
                             tickle=1
+                        elif s<len(self.standard)-1 and current>0:
+                            pos2=self.standard[s+1]['pos'][4:]
+                            if np.sqrt((pos1[0]-pos2[0])**2+(pos1[1]-pos2[1])**2)<self.p_thres:
+                                gotonext=1
 
                 if tickle==1:
                     current=i
-
+                if gotonext==1:
+                    current=i
+                    break
                 if i==len(buf)-1:
                     break
         print belong
@@ -384,16 +400,17 @@ class EduProcessor():
 
 
         totallen=cnt
-        jump=max(1,int(totallen/10*len(self.standard)))
+        jump=max(1,int(totallen/(20*len(self.standard))))
         cnt=0
         havetickled=[]
 
-        print totallen,jump
+        print len(self.standard),totallen,jump,validno,len(validno)
         for u in range(len(validno)):
             i=validno[u]
             cnt+=1
-            step=self.standard[belong[u]]
-            if belong[u] in havetickled:
+            step=self.standard[belong[i]]
+            print i,belong[i]
+            if belong[i] in havetickled:
                 continue
             if cnt%jump!=0:
                 continue
@@ -410,11 +427,12 @@ class EduProcessor():
                     else:
                         img2=cv2.copyMakeBorder(img, int(abs(sp[0]-sp[1])/2),int(abs(sp[0]-sp[1])/2),0,0, cv2.BORDER_CONSTANT, value=(0, 0, 0, 0))
                     img3=cv2.resize(img2,(227,227))
+                    cv2.imwrite('/home/lzz/'+str(i)+'.jpg',img3)
                     img3=img3/255.0
                     EduProcessor.caffedl.net.predict([img3],False)
                     h1 = EduProcessor.caffedl.net.blobs['fc7'].data[0].flatten().tolist()
                     print 'hand',  spatial.distance.cosine(h0,h1),step['diff']
-                    if spatial.distance.cosine(h0,h1)<step['diff']+0.1:
+                    if spatial.distance.cosine(h0,h1)<step['diff']+0.2:
                         tickle=1
                         print 'tickle',belong[i]
                         ticklelist['data'][belong[i]]['handshape']=1
@@ -453,11 +471,11 @@ class EduProcessor():
                     EduProcessor.caffedl.net.predict([img3],False)
                     h1 = EduProcessor.caffedl.net.blobs['fc7'].data[0].flatten().tolist()
                     print 'hand',  spatial.distance.cosine(h0,h1),step['diff']
-                    if spatial.distance.cosine(h0,h1)<step['diff']+0.15:
+                    if spatial.distance.cosine(h0,h1)<step['diff']+0.2:
                         lefttickle=1
                         #ticklelist['data'][belong[i]]['lefthandshape']=1
 
-                if righttickle==1:# and lefttickle==1:
+                if righttickle==1 and lefttickle==1:
                     tickle=1
                     ticklelist['data'][belong[i]]['handshape']=1
 
@@ -476,7 +494,7 @@ class EduProcessor():
                     EduProcessor.caffedl.net.predict([img3],False)
                     h1 = EduProcessor.caffedl.net.blobs['fc7'].data[0].flatten().tolist()
                     print 'hand',  spatial.distance.cosine(h0,h1),step['diff']
-                    if spatial.distance.cosine(h0,h1)<step['diff']+0.1:
+                    if spatial.distance.cosine(h0,h1)<step['diff']+0.2:
                         ticklelist['data'][belong[i]]['handshape']=1
                         tickle=1
 
